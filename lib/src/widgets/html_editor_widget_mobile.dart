@@ -178,12 +178,15 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                     return NavigationActionPolicy.ALLOW;
                   },
                   onConsoleMessage: (controller, message) {
-                    developer.log(message.message, name: 'html_editor_enhanced');
+                    developer.log(message.message,
+                        name: 'html_editor_enhanced');
                   },
                   onWindowFocus: (controller) async {
                     final scrollableState = Scrollable.maybeOf(context);
-                    if (widget.htmlEditorOptions.shouldEnsureVisible && scrollableState != null) {
-                      await scrollableState.position.ensureVisible(context.findRenderObject()!);
+                    if (widget.htmlEditorOptions.shouldEnsureVisible &&
+                        scrollableState != null) {
+                      await scrollableState.position
+                          .ensureVisible(context.findRenderObject()!);
                     }
                     if (widget.htmlEditorOptions.adjustHeightForKeyboard &&
                         mounted &&
@@ -526,8 +529,10 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                           handlerName: 'onChangeContent',
                           callback: (contents) {
                             final scrollableState = Scrollable.maybeOf(context);
-                            if (widget.htmlEditorOptions.shouldEnsureVisible && scrollableState != null) {
-                              scrollableState.position.ensureVisible(context.findRenderObject()!);
+                            if (widget.htmlEditorOptions.shouldEnsureVisible &&
+                                scrollableState != null) {
+                              scrollableState.position
+                                  .ensureVisible(context.findRenderObject()!);
                             }
                             if (widget.callbacks != null &&
                                 widget.callbacks!.onChangeContent != null) {

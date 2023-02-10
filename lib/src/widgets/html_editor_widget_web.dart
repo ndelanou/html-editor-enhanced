@@ -513,8 +513,9 @@ class _HtmlEditorWidgetWebState extends State<HtmlEditorWidget> {
                 widget.callbacks!.onChangeContent != null) {
               widget.callbacks!.onChangeContent!.call(data['contents']);
             }
-            final scrollableState = Scrollable.maybeOf(context); 
-            if (widget.htmlEditorOptions.shouldEnsureVisible && scrollableState != null) {
+            final scrollableState = Scrollable.maybeOf(context);
+            if (widget.htmlEditorOptions.shouldEnsureVisible &&
+                scrollableState != null) {
               scrollableState.position.ensureVisible(
                   context.findRenderObject()!,
                   duration: const Duration(milliseconds: 100),
