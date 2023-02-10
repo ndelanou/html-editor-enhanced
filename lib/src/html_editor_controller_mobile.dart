@@ -66,8 +66,7 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   /// Gets the text from the editor and returns it as a [String].
   @override
   Future<String> getText() async {
-    var text = await _evaluateJavascript(
-        source: "\$('#summernote-2').summernote('code');") as String?;
+    var text = (await _summernote('code')) as String?;
     if (processOutputHtml &&
         (text == null ||
             text.isEmpty ||
@@ -82,28 +81,22 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   @override
   void setText(String text) {
     text = _processHtml(html: text);
-    _evaluateJavascript(
-        source: "\$('#summernote-2').summernote('code', '$text');");
+    _summernote('code', params: [text]);
   }
 
   /// Sets the editor to full-screen mode.
   @override
-  void setFullScreen() {
-    _evaluateJavascript(
-        source: '\$("#summernote-2").summernote("fullscreen.toggle");');
-  }
+  void setFullScreen() => _summernote('fullscreen.toggle');
 
   /// Sets the focus to the editor.
   @override
   void setFocus() {
-    _evaluateJavascript(source: "\$('#summernote-2').summernote('focus');");
+    _summernote('focus');
   }
 
   /// Clears the editor of any text.
   @override
-  void clear() {
-    _evaluateJavascript(source: "\$('#summernote-2').summernote('reset');");
-  }
+  void clear() => _summernote('reset');
 
   /// Sets the hint for the editor.
   @override
@@ -115,72 +108,53 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
 
   /// toggles the codeview in the Html editor
   @override
-  void toggleCodeView() {
-    _evaluateJavascript(
-        source: "\$('#summernote-2').summernote('codeview.toggle');");
-  }
+  void toggleCodeView() => _summernote('codeview.toggle');
 
   /// disables the Html editor
   @override
   void disable() {
     toolbar!.disable();
-    _evaluateJavascript(source: "\$('#summernote-2').summernote('disable');");
+    _summernote('disable');
   }
 
   /// enables the Html editor
   @override
   void enable() {
     toolbar!.enable();
-    _evaluateJavascript(source: "\$('#summernote-2').summernote('enable');");
+    _summernote('enable');
   }
 
   /// Undoes the last action
   @override
-  void undo() {
-    _evaluateJavascript(source: "\$('#summernote-2').summernote('undo');");
-  }
+  void undo() => _summernote('undo');
 
   /// Redoes the last action
   @override
-  void redo() {
-    _evaluateJavascript(source: "\$('#summernote-2').summernote('redo');");
-  }
+  void redo() => _summernote('redo');
 
   /// Insert text at the end of the current HTML content in the editor
   /// Note: This method should only be used for plaintext strings
   @override
-  void insertText(String text) {
-    _evaluateJavascript(
-        source: "\$('#summernote-2').summernote('insertText', '$text');");
-  }
+  void insertText(String text) => _summernote('insertText', params: [text]);
 
   /// Insert HTML at the position of the cursor in the editor
   /// Note: This method should not be used for plaintext strings
   @override
-  void insertHtml(String html) {
-    html = _processHtml(html: html);
-    _evaluateJavascript(
-        source: "\$('#summernote-2').summernote('pasteHTML', '$html');");
-  }
+  void insertHtml(String html) => _summernote('pasteHTML', params: [html]);
 
   /// Insert a network image at the position of the cursor in the editor
   @override
-  void insertNetworkImage(String url, {String filename = ''}) {
-    _evaluateJavascript(
-        source:
-            "\$('#summernote-2').summernote('insertImage', '$url', '$filename');");
-  }
+  void insertNetworkImage(String url, {String filename = ''}) =>
+      _summernote('insertImage', params: [url, filename]);
 
   /// Insert a link at the position of the cursor in the editor
   @override
   void insertLink(String text, String url, bool isNewWindow) {
-    _evaluateJavascript(source: """
-    \$('#summernote-2').summernote('createLink', {
-        text: "$text",
-        url: '$url',
-        isNewWindow: $isNewWindow
-      });
-    """);
+    _summernote('createLink', paramsMap: {
+      'text': text,
+      'url': url,
+      'isNewWindow': isNewWindow.toString()
+    });
   }
 
   /// Clears the focus from the webview by hiding the keyboard, calling the
@@ -233,7 +207,7 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   /// Remove the current notification from the bottom of the editor
   @override
   void removeNotification() async {
-    await _evaluateJavascript(source: "\$('.note-status-output').empty();");
+    await _evaluateJavascript(source: r"$('.note-status-output').empty();");
     recalculateHeight();
   }
 
@@ -255,18 +229,41 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   }
 
   /// Helper function to evaluate JS and check the current environment
-  dynamic _evaluateJavascript({required source}) async {
+  Future<dynamic> _evaluateJavascript({required source}) async {
     if (!kIsWeb) {
       if (editorController == null || await editorController!.isLoading()) {
         throw Exception(
             'HTML editor is still loading, please wait before evaluating this JS: $source!');
       }
-      var result = await editorController!.evaluateJavascript(source: source);
-      return result;
+      return editorController!.evaluateJavascript(source: source);
     } else {
       throw Exception(
           'Flutter Web environment detected, please make sure you are importing package:html_editor_enhanced/html_editor.dart');
     }
+  }
+
+  Future<dynamic> _summernote(String command,
+      {List<String>? params, Map<String, String>? paramsMap}) {
+    assert(params == null || paramsMap == null,
+        'Cannot have both `params` and `paramsMap`');
+
+    String? paramsString;
+    if (params != null) {
+      paramsString = params.map((p) => "'$p'").join(', ');
+    } else if (paramsMap != null) {
+      paramsString = paramsMap.entries
+          .map((entry) => "'${entry.key}': '${entry.value}'")
+          .join(', ');
+    }
+
+    String jsCommand;
+    if (paramsString != null) {
+      jsCommand = "\$('#summernote-2').summernote('$command', $paramsString);";
+    } else {
+      jsCommand = "\$('#summernote-2').summernote('$command');";
+    }
+
+    return _evaluateJavascript(source: jsCommand);
   }
 
   /// Internal function to change list style on Web
