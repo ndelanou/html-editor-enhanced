@@ -363,7 +363,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: widget.htmlToolbarOptions.toolbarScrollableMainAxisAligment,
                         children: _buildChildren(),
                       ),
                     ),
@@ -412,8 +412,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     setState(mounted, this.setState, () {
                                       _isExpanded = !_isExpanded;
                                     });
-                                    await Future.delayed(
-                                        Duration(milliseconds: 100));
+                                    // await Future.delayed(Duration(milliseconds: 100));
                                     if (kIsWeb) {
                                       widget.controller.recalculateHeight();
                                     } else {
@@ -441,7 +440,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                               setState(mounted, this.setState, () {
                                 _isExpanded = !_isExpanded;
                               });
-                              await Future.delayed(Duration(milliseconds: 100));
+                              // await Future.delayed(Duration(milliseconds: 100));
                               if (kIsWeb) {
                                 widget.controller.recalculateHeight();
                               } else {
@@ -455,7 +454,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                           SliverFillRemaining(
                             hasScrollBody: false,
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: widget.htmlToolbarOptions.toolbarScrollableMainAxisAligment,
                               children: _buildChildren(),
                             ),
                           ),

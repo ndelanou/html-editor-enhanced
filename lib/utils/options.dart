@@ -159,6 +159,7 @@ class HtmlToolbarOptions {
     this.onOtherFileUpload,
     this.toolbarType = ToolbarType.nativeScrollable,
     this.toolbarPosition = ToolbarPosition.aboveEditor,
+    this.toolbarScrollableMainAxisAligment = MainAxisAlignment.spaceEvenly,
     this.videoExtensions,
     this.dropdownElevation = 8,
     this.dropdownIcon,
@@ -326,6 +327,11 @@ class HtmlToolbarOptions {
   ///
   /// By default the toolbar is above the editor.
   final ToolbarPosition toolbarPosition;
+
+  /// Controls the toolbar alignment when the toolbarType is ToolbarType.nativeScrollable
+  ///
+  /// By default the toolbar is centered evenly.
+  final MainAxisAlignment toolbarScrollableMainAxisAligment;
 
   /// Allows you to set the allowed extensions when a user inserts a video.
   ///
