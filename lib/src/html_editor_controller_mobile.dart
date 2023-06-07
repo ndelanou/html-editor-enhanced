@@ -140,7 +140,10 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   /// Insert HTML at the position of the cursor in the editor
   /// Note: This method should not be used for plaintext strings
   @override
-  void insertHtml(String html) => _summernote('pasteHTML', params: [html]);
+  void insertHtml(String html) {
+    final processedHtml = _processHtml(html: html);
+    _summernote('pasteHTML', params: [processedHtml]);
+  }
 
   /// Insert a network image at the position of the cursor in the editor
   @override
