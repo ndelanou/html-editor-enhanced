@@ -1091,8 +1091,10 @@ class _DropdownButtonState<T> extends State<CustomDropdownButton<T>>
       items.add(DefaultTextStyle(
         style: _textStyle!.copyWith(color: Theme.of(context).hintColor),
         child: IgnorePointer(
-          ignoringSemantics: false,
-          child: displayedHint,
+          child: ExcludeSemantics(
+            excluding: false,
+            child: displayedHint,
+          ),
         ),
       ));
     }
