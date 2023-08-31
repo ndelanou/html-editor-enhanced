@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 ///Class that is used by [WebView.shouldOverrideUrlLoading] event.
 ///It represents the policy to pass back to the decision handler.
 class NavigationActionPolicy {
@@ -8,13 +10,13 @@ class NavigationActionPolicy {
   int toValue() => _value;
 
   ///Cancel the navigation.
-  static const CANCEL = NavigationActionPolicy._internal(0);
+  static const cancel = NavigationActionPolicy._internal(0);
 
   ///Allow the navigation to continue.
-  static const ALLOW = NavigationActionPolicy._internal(1);
+  static const allow = NavigationActionPolicy._internal(1);
 
   @override
-  bool operator ==(value) => value == _value;
+  bool operator ==(Object other) => other == _value;
 
   @override
   int get hashCode => _value.hashCode;
@@ -55,7 +57,7 @@ class ContextMenu {
       this.onCreateContextMenu,
       this.onHideContextMenu,
       this.options,
-      this.onContextMenuActionItemClicked});
+      this.onContextMenuActionItemClicked,});
 
   Map<String, dynamic> toMap() {
     return {
@@ -86,10 +88,10 @@ class ContextMenuItem {
   String title;
 
   ///Menu item action that will be called when an user clicks on it.
-  Function()? action;
+  void Function()? action;
 
   ContextMenuItem(
-      {this.androidId, this.iosId, required this.title, this.action});
+      {required this.title, this.androidId, this.iosId, this.action,});
 
   Map<String, dynamic> toMap() {
     return {'androidId': androidId, 'iosId': iosId, 'title': title};
@@ -129,14 +131,15 @@ class ContextMenuOptions {
 }
 
 ///Class that represents contains the constants for the times at which to inject script content into a [WebView] used by an [UserScript].
+@immutable
 class UserScriptInjectionTime {
   final int _value;
 
   const UserScriptInjectionTime._internal(this._value);
 
   static final Set<UserScriptInjectionTime> values = {
-    UserScriptInjectionTime.AT_DOCUMENT_START,
-    UserScriptInjectionTime.AT_DOCUMENT_END,
+    UserScriptInjectionTime.atDocumentStart,
+    UserScriptInjectionTime.atDocumentEnd,
   };
 
   static UserScriptInjectionTime? fromValue(int? value) {
@@ -167,15 +170,15 @@ class UserScriptInjectionTime {
   ///**NOTE for iOS**: A constant to inject the script after the creation of the webpage’s document element, but before loading any other content.
   ///
   ///**NOTE for Android**: A constant to try to inject the script as soon as the page starts loading.
-  static const AT_DOCUMENT_START = UserScriptInjectionTime._internal(0);
+  static const atDocumentStart = UserScriptInjectionTime._internal(0);
 
   ///**NOTE for iOS**: A constant to inject the script after the document finishes loading, but before loading any other subresources.
   ///
   ///**NOTE for Android**: A constant to inject the script as soon as the page finishes loading.
-  static const AT_DOCUMENT_END = UserScriptInjectionTime._internal(1);
+  static const atDocumentEnd = UserScriptInjectionTime._internal(1);
 
   @override
-  bool operator ==(value) => value == _value;
+  bool operator ==(Object other) => other == _value;
 
   @override
   int get hashCode => _value.hashCode;
@@ -204,11 +207,9 @@ class UserScript {
   late ContentWorld contentWorld;
 
   UserScript(
-      {this.groupName,
-      required this.source,
-      required this.injectionTime,
+      {required this.source, required this.injectionTime, this.groupName,
       this.iosForMainFrameOnly = true,
-      ContentWorld? contentWorld}) {
+      ContentWorld? contentWorld,}) {
     this.contentWorld = contentWorld ?? ContentWorld.PAGE;
   }
 
@@ -254,7 +255,7 @@ class ContentWorld {
   ContentWorld.world({required this.name}) {
     // WINDOW-ID- is used internally by the plugin!
     assert(!name.startsWith('WINDOW-ID-') &&
-        !name.contains(_contentWorldNameRegExp));
+        !name.contains(_contentWorldNameRegExp),);
   }
 
   ///The default world for clients.

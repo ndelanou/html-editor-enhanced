@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:html_editor_enhanced/html_editor.dart';
+import '../html_editor.dart';
 
 /// Fallback HtmlEditor class (should never be called)
 class HtmlEditor extends StatelessWidget {
-  HtmlEditor({
-    Key? key,
-    required this.controller,
+  const HtmlEditor({
+    required this.controller, super.key,
     this.callbacks,
     this.htmlEditorOptions = const HtmlEditorOptions(),
     this.htmlToolbarOptions = const HtmlToolbarOptions(),
     this.otherOptions = const OtherOptions(),
     this.plugins = const [],
-  }) : super(key: key);
+  });
 
   /// The controller that is passed to the widget, which allows multiple [HtmlEditor]
   /// widgets to be used on the same page independently.
@@ -35,6 +34,6 @@ class HtmlEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text('Unsupported in this environment');
+    return const Text('Unsupported in this environment');
   }
 }

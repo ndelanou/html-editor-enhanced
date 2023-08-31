@@ -1,5 +1,6 @@
-import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:meta/meta.dart';
+
+import '../html_editor.dart';
 
 /// Fallback controller (should never be used)
 class HtmlEditorController {
@@ -84,7 +85,7 @@ class HtmlEditorController {
   /// A function to execute JS passed as a [WebScript] to the editor. This should
   /// only be used on Flutter Web.
   Future<dynamic> evaluateJavascriptWeb(String name,
-          {bool hasReturnValue = false}) =>
+          {bool hasReturnValue = false,}) =>
       Future.value();
 
   /// Gets the text from the editor and returns it as a [String].

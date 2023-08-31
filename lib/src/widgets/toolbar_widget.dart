@@ -1,14 +1,18 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
+
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:html_editor_enhanced/html_editor.dart';
-import 'package:html_editor_enhanced/utils/utils.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
+
+import '../../html_editor.dart';
+import '../../utils/utils.dart';
 
 /// Toolbar widget class
 class ToolbarWidget extends StatefulWidget {
@@ -18,11 +22,8 @@ class ToolbarWidget extends StatefulWidget {
   final Callbacks? callbacks;
 
   const ToolbarWidget({
-    Key? key,
-    required this.controller,
-    required this.htmlToolbarOptions,
-    required this.callbacks,
-  }) : super(key: key);
+    required this.controller, required this.htmlToolbarOptions, required this.callbacks, super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -95,7 +96,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
   void initState() {
     widget.controller.toolbar = this;
     _isExpanded = widget.htmlToolbarOptions.initiallyExpanded;
-    for (var t in widget.htmlToolbarOptions.defaultToolbarButtons) {
+    for (final t in widget.htmlToolbarOptions.defaultToolbarButtons) {
       if (t is FontButtons) {
         _fontSelected = List<bool>.filled(t.getIcons1().length, false);
         _miscFontSelected = List<bool>.filled(t.getIcons2().length, false);
@@ -132,27 +133,27 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
   /// listener on web
   void updateToolbar(Map<String, dynamic> json) {
     //get parent element
-    String parentElem = json['style'] ?? '';
+    final parentElem = json['style'] as String? ?? '';
     //get font name
-    var fontName = (json['fontName'] ?? '').toString().replaceAll('"', '');
+    final fontName = (json['fontName'] ?? '').toString().replaceAll('"', '');
     //get font size
-    var fontSize = double.tryParse(json['fontSize']) ?? 3;
+    final fontSize = double.tryParse(json['fontSize'] as String) ?? 3;
     //get bold/underline/italic status
-    var fontList = (json['font'] as List<dynamic>).cast<bool?>();
+    final fontList = (json['font'] as List<dynamic>).cast<bool?>();
     //get superscript/subscript/strikethrough status
-    var miscFontList = (json['miscFont'] as List<dynamic>).cast<bool?>();
+    final miscFontList = (json['miscFont'] as List<dynamic>).cast<bool?>();
     //get forecolor/backcolor
-    var colorList = (json['color'] as List<dynamic>).cast<String?>();
+    final colorList = (json['color'] as List<dynamic>).cast<String?>();
     //get ordered/unordered list status
-    var paragraphList = (json['paragraph'] as List<dynamic>).cast<bool?>();
+    final paragraphList = (json['paragraph'] as List<dynamic>).cast<bool?>();
     //get justify status
-    var alignList = (json['align'] as List<dynamic>).cast<bool?>();
+    final alignList = (json['align'] as List<dynamic>).cast<bool?>();
     //get line height
-    String lineHeight = json['lineHeight'] ?? '';
+    final lineHeight = json['lineHeight'] as String? ?? '';
     //get list icon type
-    String listType = json['listStyle'] ?? '';
+    final listType = json['listStyle'] as String? ?? '';
     //get text direction
-    String textDir = json['direction'] ?? 'ltr';
+    final textDir = json['direction'] as String? ?? 'ltr';
     //check the parent element if it matches one of the predetermined styles and update the toolbar
     if (['pre', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
         .contains(parentElem)) {
@@ -177,10 +178,10 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
     //update the fore/back selected color if necessary
     if (colorList[0] != null && colorList[0]!.isNotEmpty) {
       setState(mounted, this.setState, () {
-        var rgb = colorList[0]!.replaceAll('rgb(', '').replaceAll(')', '');
-        var rgbList = rgb.split(', ');
+        final rgb = colorList[0]!.replaceAll('rgb(', '').replaceAll(')', '');
+        final rgbList = rgb.split(', ');
         _foreColorSelected = Color.fromRGBO(int.parse(rgbList[0]),
-            int.parse(rgbList[1]), int.parse(rgbList[2]), 1);
+            int.parse(rgbList[1]), int.parse(rgbList[2]), 1,);
       });
     } else {
       setState(mounted, this.setState, () {
@@ -216,7 +217,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
     }
     //update the lineheight selected item if necessary
     if (lineHeight.isNotEmpty && lineHeight.endsWith('px')) {
-      var lineHeightDouble =
+      final lineHeightDouble =
           double.tryParse(lineHeight.replaceAll('px', '')) ?? 16;
       var lineHeights = <double>[1, 1.2, 1.4, 1.5, 1.6, 1.8, 2, 3];
       lineHeights =
@@ -249,7 +250,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
     }
     //use the remaining bool lists to update the selected items accordingly
     setState(mounted, this.setState, () {
-      for (var t in widget.htmlToolbarOptions.defaultToolbarButtons) {
+      for (final t in widget.htmlToolbarOptions.defaultToolbarButtons) {
         if (t is FontButtons) {
           for (var i = 0; i < _fontSelected.length; i++) {
             if (t.getIcons1()[i].icon == Icons.format_bold) {
@@ -323,7 +324,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
           isAlignJustify: alignList[3] ?? false,
           lineHeight: _lineHeightSelectedItem,
           textDirection:
-              textDir == 'rtl' ? TextDirection.rtl : TextDirection.ltr));
+              textDir == 'rtl' ? TextDirection.rtl : TextDirection.ltr,),);
     }
   }
 
@@ -336,7 +337,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
           child: Opacity(
             opacity: _enabled ? 1 : 0.5,
             child: Padding(
-              padding: const EdgeInsets.all(5.0),
+              padding: const EdgeInsets.all(5),
               child: Wrap(
                 runSpacing: widget.htmlToolbarOptions.gridViewVerticalSpacing,
                 spacing: widget.htmlToolbarOptions.gridViewHorizontalSpacing,
@@ -353,10 +354,10 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
           absorbing: !_enabled,
           child: Opacity(
             opacity: _enabled ? 1 : 0.5,
-            child: Container(
+            child: SizedBox(
               height: widget.htmlToolbarOptions.toolbarItemHeight + 15,
               child: Padding(
-                padding: const EdgeInsets.all(5.0),
+                padding: const EdgeInsets.all(5),
                 child: CustomScrollView(
                   scrollDirection: Axis.horizontal,
                   slivers: [
@@ -389,7 +390,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               ),
               child: _isExpanded
                   ? Padding(
-                      padding: const EdgeInsets.all(5.0),
+                      padding: const EdgeInsets.all(5),
                       child: Wrap(
                         runSpacing:
                             widget.htmlToolbarOptions.gridViewVerticalSpacing,
@@ -398,7 +399,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         children: _buildChildren()
                           ..insert(
                               0,
-                              Container(
+                              SizedBox(
                                 height:
                                     widget.htmlToolbarOptions.toolbarItemHeight,
                                 child: IconButton(
@@ -413,22 +414,22 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                       _isExpanded = !_isExpanded;
                                     });
                                     await Future.delayed(
-                                        Duration(milliseconds: 100));
+                                        const Duration(milliseconds: 100),);
                                     if (kIsWeb) {
                                       widget.controller.recalculateHeight();
                                     } else {
                                       await widget.controller.editorController!
                                           .evaluateJavascript(
                                               source:
-                                                  "var height = \$('div.note-editable').outerHeight(true); window.flutter_inappwebview.callHandler('setHeight', height);");
+                                                  r"var height = $('div.note-editable').outerHeight(true); window.flutter_inappwebview.callHandler('setHeight', height);",);
                                     }
                                   },
                                 ),
-                              )),
+                              ),),
                       ),
                     )
                   : Padding(
-                      padding: const EdgeInsets.all(5.0),
+                      padding: const EdgeInsets.all(5),
                       child: CustomScrollView(
                         scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
@@ -441,14 +442,14 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                               setState(mounted, this.setState, () {
                                 _isExpanded = !_isExpanded;
                               });
-                              await Future.delayed(Duration(milliseconds: 100));
+                              await Future.delayed(const Duration(milliseconds: 100));
                               if (kIsWeb) {
                                 widget.controller.recalculateHeight();
                               } else {
                                 await widget.controller.editorController!
                                     .evaluateJavascript(
                                         source:
-                                            "var height = \$('div.note-editable').outerHeight(true); window.flutter_inappwebview.callHandler('setHeight', height);");
+                                            r"var height = $('div.note-editable').outerHeight(true); window.flutter_inappwebview.callHandler('setHeight', height);",);
                               }
                             }),
                           ),
@@ -467,15 +468,15 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
         ),
       );
     }
-    return Container(height: 0, width: 0);
+    return const SizedBox.shrink();
   }
 
   List<Widget> _buildChildren() {
     var toolbarChildren = <Widget>[];
-    for (var t in widget.htmlToolbarOptions.defaultToolbarButtons) {
+    for (final t in widget.htmlToolbarOptions.defaultToolbarButtons) {
       if (t is StyleButtons && t.style) {
         toolbarChildren.add(Container(
-          padding: const EdgeInsets.only(left: 8.0),
+          padding: const EdgeInsets.only(left: 8),
           height: widget.htmlToolbarOptions.toolbarItemHeight,
           decoration: !widget.htmlToolbarOptions.renderBorder
               ? null
@@ -486,7 +487,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withOpacity(0.12))),
+                              .withOpacity(0.12),),),
           child: CustomDropdownButtonHideUnderline(
             child: CustomDropdownButton<String>(
               elevation: widget.htmlToolbarOptions.dropdownElevation,
@@ -507,73 +508,73 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               items: [
                 CustomDropdownMenuItem(
                     value: 'p',
-                    child: PointerInterceptor(child: Text('Normal'))),
+                    child: PointerInterceptor(child: const Text('Normal')),),
                 CustomDropdownMenuItem(
                     value: 'blockquote',
                     child: PointerInterceptor(
                       child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               border: Border(
                                   left: BorderSide(
-                                      color: Colors.grey, width: 3.0))),
-                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text('Quote',
+                                      color: Colors.grey, width: 3,),),),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: const Text('Quote',
                               style: TextStyle(
-                                  fontFamily: 'times', color: Colors.grey))),
-                    )),
+                                  fontFamily: 'times', color: Colors.grey,),),),
+                    ),),
                 CustomDropdownMenuItem(
                     value: 'pre',
                     child: PointerInterceptor(
                       child: Container(
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
-                              color: Colors.grey),
-                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text('Code',
+                              color: Colors.grey,),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: const Text('Code',
                               style: TextStyle(
-                                  fontFamily: 'courier', color: Colors.white))),
-                    )),
+                                  fontFamily: 'courier', color: Colors.white,),),),
+                    ),),
                 CustomDropdownMenuItem(
                   value: 'h1',
                   child: PointerInterceptor(
-                      child: Text('Header 1',
+                      child: const Text('Header 1',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 32))),
+                              fontWeight: FontWeight.bold, fontSize: 32,),),),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h2',
                   child: PointerInterceptor(
-                      child: Text('Header 2',
+                      child: const Text('Header 2',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 24))),
+                              fontWeight: FontWeight.bold, fontSize: 24,),),),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h3',
                   child: PointerInterceptor(
-                      child: Text('Header 3',
+                      child: const Text('Header 3',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18))),
+                              fontWeight: FontWeight.bold, fontSize: 18,),),),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h4',
                   child: PointerInterceptor(
-                      child: Text('Header 4',
+                      child: const Text('Header 4',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16))),
+                              fontWeight: FontWeight.bold, fontSize: 16,),),),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h5',
                   child: PointerInterceptor(
-                      child: Text('Header 5',
+                      child: const Text('Header 5',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 13))),
+                              fontWeight: FontWeight.bold, fontSize: 13,),),),
                 ),
                 CustomDropdownMenuItem(
                   value: 'h6',
                   child: PointerInterceptor(
-                      child: Text('Header 6',
+                      child: const Text('Header 6',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 11))),
+                              fontWeight: FontWeight.bold, fontSize: 11,),),),
                 ),
               ],
               value: _fontSelectedItem,
@@ -587,11 +588,11 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
 
                 if (changed != null) {
-                  var proceed =
+                  final proceed =
                       await widget.htmlToolbarOptions.onDropdownChanged?.call(
                               DropdownType.style,
                               changed,
-                              updateSelectedItem) ??
+                              updateSelectedItem,) ??
                           true;
                   if (proceed) {
                     widget.controller
@@ -602,12 +603,12 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               },
             ),
           ),
-        ));
+        ),);
       }
       if (t is FontSettingButtons) {
         if (t.fontName) {
           toolbarChildren.add(Container(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 8),
             height: widget.htmlToolbarOptions.toolbarItemHeight,
             decoration: !widget.htmlToolbarOptions.renderBorder
                 ? null
@@ -618,7 +619,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.12))),
+                                .withOpacity(0.12),),),
             child: CustomDropdownButtonHideUnderline(
               child: CustomDropdownButton<String>(
                 elevation: widget.htmlToolbarOptions.dropdownElevation,
@@ -643,25 +644,25 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                   CustomDropdownMenuItem(
                     value: 'Courier New',
                     child: PointerInterceptor(
-                        child: Text('Courier New',
-                            style: TextStyle(fontFamily: 'Courier'))),
+                        child: const Text('Courier New',
+                            style: TextStyle(fontFamily: 'Courier'),),),
                   ),
                   CustomDropdownMenuItem(
                     value: 'sans-serif',
                     child: PointerInterceptor(
-                        child: Text('Sans Serif',
-                            style: TextStyle(fontFamily: 'sans-serif'))),
+                        child: const Text('Sans Serif',
+                            style: TextStyle(fontFamily: 'sans-serif'),),),
                   ),
                   CustomDropdownMenuItem(
                     value: 'Times New Roman',
                     child: PointerInterceptor(
-                        child: Text('Times New Roman',
-                            style: TextStyle(fontFamily: 'Times'))),
+                        child: const Text('Times New Roman',
+                            style: TextStyle(fontFamily: 'Times'),),),
                   ),
                 ],
                 value: _fontNameSelectedItem,
                 onChanged: (String? changed) async {
-                  void updateSelectedItem(dynamic changed) async {
+                  Future<void> updateSelectedItem(dynamic changed) async {
                     if (changed is String) {
                       setState(mounted, this.setState, () {
                         _fontNameSelectedItem = changed;
@@ -670,26 +671,26 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                   }
 
                   if (changed != null) {
-                    var proceed =
+                    final proceed =
                         await widget.htmlToolbarOptions.onDropdownChanged?.call(
                                 DropdownType.fontName,
                                 changed,
-                                updateSelectedItem) ??
+                                updateSelectedItem,) ??
                             true;
                     if (proceed) {
                       widget.controller
                           .execCommand('fontName', argument: changed);
-                      updateSelectedItem(changed);
+                      await updateSelectedItem(changed);
                     }
                   }
                 },
               ),
             ),
-          ));
+          ),);
         }
         if (t.fontSize) {
           toolbarChildren.add(Container(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 8),
             height: widget.htmlToolbarOptions.toolbarItemHeight,
             decoration: !widget.htmlToolbarOptions.renderBorder
                 ? null
@@ -700,7 +701,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.12))),
+                                .withOpacity(0.12),),),
             child: CustomDropdownButtonHideUnderline(
               child: CustomDropdownButton<double>(
                 elevation: widget.htmlToolbarOptions.dropdownElevation,
@@ -726,43 +727,43 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                     value: 1,
                     child: PointerInterceptor(
                         child: Text(
-                            "${_fontSizeUnitSelectedItem == "px" ? "11" : "8"} $_fontSizeUnitSelectedItem")),
+                            "${_fontSizeUnitSelectedItem == "px" ? "11" : "8"} $_fontSizeUnitSelectedItem",),),
                   ),
                   CustomDropdownMenuItem(
                     value: 2,
                     child: PointerInterceptor(
                         child: Text(
-                            "${_fontSizeUnitSelectedItem == "px" ? "13" : "10"} $_fontSizeUnitSelectedItem")),
+                            "${_fontSizeUnitSelectedItem == "px" ? "13" : "10"} $_fontSizeUnitSelectedItem",),),
                   ),
                   CustomDropdownMenuItem(
                     value: 3,
                     child: PointerInterceptor(
                         child: Text(
-                            "${_fontSizeUnitSelectedItem == "px" ? "16" : "12"} $_fontSizeUnitSelectedItem")),
+                            "${_fontSizeUnitSelectedItem == "px" ? "16" : "12"} $_fontSizeUnitSelectedItem",),),
                   ),
                   CustomDropdownMenuItem(
                     value: 4,
                     child: PointerInterceptor(
                         child: Text(
-                            "${_fontSizeUnitSelectedItem == "px" ? "19" : "14"} $_fontSizeUnitSelectedItem")),
+                            "${_fontSizeUnitSelectedItem == "px" ? "19" : "14"} $_fontSizeUnitSelectedItem",),),
                   ),
                   CustomDropdownMenuItem(
                     value: 5,
                     child: PointerInterceptor(
                         child: Text(
-                            "${_fontSizeUnitSelectedItem == "px" ? "24" : "18"} $_fontSizeUnitSelectedItem")),
+                            "${_fontSizeUnitSelectedItem == "px" ? "24" : "18"} $_fontSizeUnitSelectedItem",),),
                   ),
                   CustomDropdownMenuItem(
                     value: 6,
                     child: PointerInterceptor(
                         child: Text(
-                            "${_fontSizeUnitSelectedItem == "px" ? "32" : "24"} $_fontSizeUnitSelectedItem")),
+                            "${_fontSizeUnitSelectedItem == "px" ? "32" : "24"} $_fontSizeUnitSelectedItem",),),
                   ),
                   CustomDropdownMenuItem(
                     value: 7,
                     child: PointerInterceptor(
                         child: Text(
-                            "${_fontSizeUnitSelectedItem == "px" ? "48" : "36"} $_fontSizeUnitSelectedItem")),
+                            "${_fontSizeUnitSelectedItem == "px" ? "48" : "36"} $_fontSizeUnitSelectedItem",),),
                   ),
                 ],
                 value: _fontSizeSelectedItem,
@@ -776,50 +777,43 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                   }
 
                   if (changed != null) {
-                    var intChanged = changed.toInt();
-                    var proceed =
+                    final intChanged = changed.toInt();
+                    final proceed =
                         await widget.htmlToolbarOptions.onDropdownChanged?.call(
                                 DropdownType.fontSize,
                                 changed,
-                                updateSelectedItem) ??
+                                updateSelectedItem,) ??
                             true;
                     if (proceed) {
                       switch (intChanged) {
                         case 1:
                           _actualFontSizeSelectedItem = 11;
-                          break;
                         case 2:
                           _actualFontSizeSelectedItem = 13;
-                          break;
                         case 3:
                           _actualFontSizeSelectedItem = 16;
-                          break;
                         case 4:
                           _actualFontSizeSelectedItem = 19;
-                          break;
                         case 5:
                           _actualFontSizeSelectedItem = 24;
-                          break;
                         case 6:
                           _actualFontSizeSelectedItem = 32;
-                          break;
                         case 7:
                           _actualFontSizeSelectedItem = 48;
-                          break;
                       }
                       widget.controller.execCommand('fontSize',
-                          argument: changed.toString());
+                          argument: changed.toString(),);
                       updateSelectedItem(changed);
                     }
                   }
                 },
               ),
             ),
-          ));
+          ),);
         }
         if (t.fontSizeUnit) {
           toolbarChildren.add(Container(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 8),
             height: widget.htmlToolbarOptions.toolbarItemHeight,
             decoration: !widget.htmlToolbarOptions.renderBorder
                 ? null
@@ -830,7 +824,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.12))),
+                                .withOpacity(0.12),),),
             child: CustomDropdownButtonHideUnderline(
               child: CustomDropdownButton<String>(
                 elevation: widget.htmlToolbarOptions.dropdownElevation,
@@ -854,11 +848,11 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 items: [
                   CustomDropdownMenuItem(
                     value: 'pt',
-                    child: PointerInterceptor(child: Text('pt')),
+                    child: PointerInterceptor(child: const Text('pt')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'px',
-                    child: PointerInterceptor(child: Text('px')),
+                    child: PointerInterceptor(child: const Text('px')),
                   ),
                 ],
                 value: _fontSizeUnitSelectedItem,
@@ -872,11 +866,11 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                   }
 
                   if (changed != null) {
-                    var proceed =
+                    final proceed =
                         await widget.htmlToolbarOptions.onDropdownChanged?.call(
                                 DropdownType.fontSizeUnit,
                                 changed,
-                                updateSelectedItem) ??
+                                updateSelectedItem,) ??
                             true;
                     if (proceed) {
                       updateSelectedItem(changed);
@@ -885,7 +879,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 },
               ),
             ),
-          ));
+          ),);
         }
       }
       if (t is FontButtons) {
@@ -917,9 +911,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               }
 
               if (t.getIcons1()[index].icon == Icons.format_bold) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.bold, _fontSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('bold');
@@ -927,9 +921,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.format_italic) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.italic, _fontSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('italic');
@@ -937,9 +931,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.format_underline) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.underline, _fontSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('underline');
@@ -947,7 +941,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.format_clear) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.clearFormatting, null, null) ??
                     true;
                 if (proceed) {
@@ -957,7 +951,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             },
             isSelected: _fontSelected,
             children: t.getIcons1(),
-          ));
+          ),);
         }
         if (t.strikethrough || t.superscript || t.subscript) {
           toolbarChildren.add(ToggleButtons(
@@ -987,9 +981,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               }
 
               if (t.getIcons2()[index].icon == Icons.format_strikethrough) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.strikethrough,
-                            _miscFontSelected[index], updateStatus) ??
+                            _miscFontSelected[index], updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('strikeThrough');
@@ -997,9 +991,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons2()[index].icon == Icons.superscript) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.superscript, _miscFontSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('superscript');
@@ -1007,9 +1001,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons2()[index].icon == Icons.subscript) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.subscript, _miscFontSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('subscript');
@@ -1019,7 +1013,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             },
             isSelected: _miscFontSelected,
             children: t.getIcons2(),
-          ));
+          ),);
         }
       }
       if (t is ColorButtons && (t.foregroundColor || t.highlightColor)) {
@@ -1059,30 +1053,30 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
 
             if (_colorSelected[index]) {
               if (t.getIcons()[index].icon == Icons.format_color_text) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.foregroundColor,
-                            _colorSelected[index], updateStatus) ??
+                            _colorSelected[index], updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('foreColor',
                       argument: (Colors.black.value & 0xFFFFFF)
                           .toRadixString(16)
                           .padLeft(6, '0')
-                          .toUpperCase());
+                          .toUpperCase(),);
                   updateStatus(null);
                 }
               }
               if (t.getIcons()[index].icon == Icons.format_color_fill) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.highlightColor, _colorSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('hiliteColor',
                       argument: (Colors.yellow.value & 0xFFFFFF)
                           .toRadixString(16)
                           .padLeft(6, '0')
-                          .toUpperCase());
+                          .toUpperCase(),);
                   updateStatus(null);
                 }
               }
@@ -1092,13 +1086,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 proceed = await widget.htmlToolbarOptions.onButtonPressed?.call(
                         ButtonType.foregroundColor,
                         _colorSelected[index],
-                        updateStatus) ??
+                        updateStatus,) ??
                     true;
               } else if (t.getIcons()[index].icon == Icons.format_color_fill) {
                 proceed = await widget.htmlToolbarOptions.onButtonPressed?.call(
                         ButtonType.highlightColor,
                         _colorSelected[index],
-                        updateStatus) ??
+                        updateStatus,) ??
                     true;
               }
               if (proceed) {
@@ -1120,25 +1114,19 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                               newColor = color;
                             },
                             title: Text('Choose a Color',
-                                style: Theme.of(context).textTheme.titleLarge),
-                            width: 40,
-                            height: 40,
+                                style: Theme.of(context).textTheme.titleLarge,),
                             spacing: 0,
                             runSpacing: 0,
                             borderRadius: 0,
                             wheelDiameter: 165,
-                            enableOpacity: false,
                             showColorCode: true,
                             colorCodeHasColor: true,
-                            pickersEnabled: <ColorPickerType, bool>{
+                            pickersEnabled: const <ColorPickerType, bool>{
                               ColorPickerType.wheel: true,
                             },
                             copyPasteBehavior:
                                 const ColorPickerCopyPasteBehavior(
                               parseShortHexCode: true,
-                            ),
-                            actionButtons: const ColorPickerActionButtons(
-                              dialogActionButtons: true,
                             ),
                           ),
                           actions: <Widget>[
@@ -1146,7 +1134,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text('Cancel'),
+                              child: const Text('Cancel'),
                             ),
                             TextButton(
                                 onPressed: () {
@@ -1157,9 +1145,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     });
                                     widget.controller.execCommand(
                                         'removeFormat',
-                                        argument: 'foreColor');
+                                        argument: 'foreColor',);
                                     widget.controller.execCommand('foreColor',
-                                        argument: 'initial');
+                                        argument: 'initial',);
                                   }
                                   if (t.getIcons()[index].icon ==
                                       Icons.format_color_fill) {
@@ -1168,13 +1156,13 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     });
                                     widget.controller.execCommand(
                                         'removeFormat',
-                                        argument: 'hiliteColor');
+                                        argument: 'hiliteColor',);
                                     widget.controller.execCommand('hiliteColor',
-                                        argument: 'initial');
+                                        argument: 'initial',);
                                   }
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Reset to default color')),
+                                child: const Text('Reset to default color'),),
                             TextButton(
                               onPressed: () {
                                 if (t.getIcons()[index].icon ==
@@ -1183,7 +1171,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                       argument: (newColor.value & 0xFFFFFF)
                                           .toRadixString(16)
                                           .padLeft(6, '0')
-                                          .toUpperCase());
+                                          .toUpperCase(),);
                                   setState(mounted, this.setState, () {
                                     _foreColorSelected = newColor;
                                   });
@@ -1194,7 +1182,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                       argument: (newColor.value & 0xFFFFFF)
                                           .toRadixString(16)
                                           .padLeft(6, '0')
-                                          .toUpperCase());
+                                          .toUpperCase(),);
                                   setState(mounted, this.setState, () {
                                     _backColorSelected = newColor;
                                   });
@@ -1205,18 +1193,18 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 });
                                 Navigator.of(context).pop();
                               },
-                              child: Text('Set color'),
+                              child: const Text('Set color'),
                             )
                           ],
                         ),
                       );
-                    });
+                    },);
               }
             }
           },
           isSelected: _colorSelected,
           children: t.getIcons(),
-        ));
+        ),);
       }
       if (t is ListButtons) {
         if (t.ul || t.ol) {
@@ -1247,9 +1235,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               }
 
               if (t.getIcons()[index].icon == Icons.format_list_bulleted) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.ul, _listSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('insertUnorderedList');
@@ -1257,9 +1245,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons()[index].icon == Icons.format_list_numbered) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.ol, _listSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('insertOrderedList');
@@ -1269,11 +1257,11 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             },
             isSelected: _listSelected,
             children: t.getIcons(),
-          ));
+          ),);
         }
         if (t.listStyles) {
           toolbarChildren.add(Container(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 8),
             height: widget.htmlToolbarOptions.toolbarItemHeight,
             decoration: !widget.htmlToolbarOptions.renderBorder
                 ? null
@@ -1284,7 +1272,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.12))),
+                                .withOpacity(0.12),),),
             child: CustomDropdownButtonHideUnderline(
               child: CustomDropdownButton<String>(
                 elevation: widget.htmlToolbarOptions.dropdownElevation,
@@ -1308,38 +1296,38 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 items: [
                   CustomDropdownMenuItem(
                     value: 'decimal',
-                    child: PointerInterceptor(child: Text('1. Numbered')),
+                    child: PointerInterceptor(child: const Text('1. Numbered')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'lower-alpha',
-                    child: PointerInterceptor(child: Text('a. Lower Alpha')),
+                    child: PointerInterceptor(child: const Text('a. Lower Alpha')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'upper-alpha',
-                    child: PointerInterceptor(child: Text('A. Upper Alpha')),
+                    child: PointerInterceptor(child: const Text('A. Upper Alpha')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'lower-roman',
-                    child: PointerInterceptor(child: Text('i. Lower Roman')),
+                    child: PointerInterceptor(child: const Text('i. Lower Roman')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'upper-roman',
-                    child: PointerInterceptor(child: Text('I. Upper Roman')),
+                    child: PointerInterceptor(child: const Text('I. Upper Roman')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'disc',
-                    child: PointerInterceptor(child: Text('• Disc')),
+                    child: PointerInterceptor(child: const Text('• Disc')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'circle',
-                    child: PointerInterceptor(child: Text('○ Circle')),
+                    child: PointerInterceptor(child: const Text('○ Circle')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'square',
-                    child: PointerInterceptor(child: Text('■ Square')),
+                    child: PointerInterceptor(child: const Text('■ Square')),
                   ),
                 ],
-                hint: Text('Select list style'),
+                hint: const Text('Select list style'),
                 value: _listStyleSelectedItem,
                 onChanged: (String? changed) async {
                   void updateSelectedItem(dynamic changed) {
@@ -1351,11 +1339,11 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                   }
 
                   if (changed != null) {
-                    var proceed =
+                    final proceed =
                         await widget.htmlToolbarOptions.onDropdownChanged?.call(
                                 DropdownType.listStyles,
                                 changed,
-                                updateSelectedItem) ??
+                                updateSelectedItem,) ??
                             true;
                     if (proceed) {
                       if (kIsWeb) {
@@ -1366,7 +1354,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                var \$focusNode = \$(window.getSelection().focusNode);
                                var \$parentList = \$focusNode.closest("div.note-editable ol, div.note-editable ul");
                                \$parentList.css("list-style-type", "$changed");
-                            ''');
+                            ''',);
                       }
                       updateSelectedItem(changed);
                     }
@@ -1374,7 +1362,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 },
               ),
             ),
-          ));
+          ),);
         }
       }
       if (t is ParagraphButtons) {
@@ -1407,9 +1395,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               }
 
               if (t.getIcons1()[index].icon == Icons.format_align_left) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.alignLeft, _alignSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('justifyLeft');
@@ -1417,9 +1405,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.format_align_center) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.alignCenter, _alignSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('justifyCenter');
@@ -1427,9 +1415,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.format_align_right) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.alignRight, _alignSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('justifyRight');
@@ -1437,9 +1425,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.format_align_justify) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.alignJustify, _alignSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.execCommand('justifyFull');
@@ -1449,7 +1437,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             },
             isSelected: _alignSelected,
             children: t.getIcons1(),
-          ));
+          ),);
         }
         if (t.increaseIndent || t.decreaseIndent) {
           toolbarChildren.add(ToggleButtons(
@@ -1473,7 +1461,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             textStyle: widget.htmlToolbarOptions.textStyle,
             onPressed: (int index) async {
               if (t.getIcons2()[index].icon == Icons.format_indent_increase) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.increaseIndent, null, null) ??
                     true;
                 if (proceed) {
@@ -1481,7 +1469,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons2()[index].icon == Icons.format_indent_decrease) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.decreaseIndent, null, null) ??
                     true;
                 if (proceed) {
@@ -1491,11 +1479,11 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             },
             isSelected: List<bool>.filled(t.getIcons2().length, false),
             children: t.getIcons2(),
-          ));
+          ),);
         }
         if (t.lineHeight) {
           toolbarChildren.add(Container(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 8),
             height: widget.htmlToolbarOptions.toolbarItemHeight,
             decoration: !widget.htmlToolbarOptions.renderBorder
                 ? null
@@ -1506,7 +1494,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.12))),
+                                .withOpacity(0.12),),),
             child: CustomDropdownButtonHideUnderline(
               child: CustomDropdownButton<double>(
                 elevation: widget.htmlToolbarOptions.dropdownElevation,
@@ -1529,33 +1517,33 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 style: widget.htmlToolbarOptions.textStyle,
                 items: [
                   CustomDropdownMenuItem(
-                      value: 1, child: PointerInterceptor(child: Text('1.0'))),
+                      value: 1, child: PointerInterceptor(child: const Text('1.0')),),
                   CustomDropdownMenuItem(
                     value: 1.2,
-                    child: PointerInterceptor(child: Text('1.2')),
+                    child: PointerInterceptor(child: const Text('1.2')),
                   ),
                   CustomDropdownMenuItem(
                     value: 1.4,
-                    child: PointerInterceptor(child: Text('1.4')),
+                    child: PointerInterceptor(child: const Text('1.4')),
                   ),
                   CustomDropdownMenuItem(
                     value: 1.5,
-                    child: PointerInterceptor(child: Text('1.5')),
+                    child: PointerInterceptor(child: const Text('1.5')),
                   ),
                   CustomDropdownMenuItem(
                     value: 1.6,
-                    child: PointerInterceptor(child: Text('1.6')),
+                    child: PointerInterceptor(child: const Text('1.6')),
                   ),
                   CustomDropdownMenuItem(
                     value: 1.8,
-                    child: PointerInterceptor(child: Text('1.8')),
+                    child: PointerInterceptor(child: const Text('1.8')),
                   ),
                   CustomDropdownMenuItem(
                     value: 2,
-                    child: PointerInterceptor(child: Text('2.0')),
+                    child: PointerInterceptor(child: const Text('2.0')),
                   ),
                   CustomDropdownMenuItem(
-                      value: 3, child: PointerInterceptor(child: Text('3.0'))),
+                      value: 3, child: PointerInterceptor(child: const Text('3.0')),),
                 ],
                 value: _lineHeightSelectedItem,
                 onChanged: (double? changed) async {
@@ -1568,11 +1556,11 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                   }
 
                   if (changed != null) {
-                    var proceed =
+                    final proceed =
                         await widget.htmlToolbarOptions.onDropdownChanged?.call(
                                 DropdownType.lineHeight,
                                 changed,
-                                updateSelectedItem) ??
+                                updateSelectedItem,) ??
                             true;
                     if (proceed) {
                       if (kIsWeb) {
@@ -1581,7 +1569,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         await widget.controller.editorController!
                             .evaluateJavascript(
                                 source:
-                                    "\$('#summernote-2').summernote('lineHeight', '$changed');");
+                                    "\$('#summernote-2').summernote('lineHeight', '$changed');",);
                       }
                       updateSelectedItem(changed);
                     }
@@ -1589,7 +1577,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 },
               ),
             ),
-          ));
+          ),);
         }
         if (t.textDirection) {
           toolbarChildren.add(ToggleButtons(
@@ -1620,9 +1608,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 });
               }
 
-              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+              final proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(index == 0 ? ButtonType.ltr : ButtonType.rtl,
-                          _alignSelected[index], updateStatus) ??
+                          _alignSelected[index], updateStatus,) ??
                   true;
               if (proceed) {
                 if (kIsWeb) {
@@ -1637,21 +1625,21 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                   }else{
                       document.execCommand("insertHTML", false, "<div dir='${index == 0 ? "ltr" : "rtl"}'>"+ document.getSelection()+"</div>");
                   }
-                """);
+                """,);
                 }
                 updateStatus();
               }
             },
             isSelected: _textDirectionSelected,
-            children: [
+            children: const [
               Icon(Icons.format_textdirection_l_to_r),
               Icon(Icons.format_textdirection_r_to_l),
             ],
-          ));
+          ),);
         }
         if (t.caseConverter) {
           toolbarChildren.add(Container(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 8),
             height: widget.htmlToolbarOptions.toolbarItemHeight,
             decoration: !widget.htmlToolbarOptions.renderBorder
                 ? null
@@ -1662,7 +1650,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.12))),
+                                .withOpacity(0.12),),),
             child: CustomDropdownButtonHideUnderline(
               child: CustomDropdownButton<String>(
                 elevation: widget.htmlToolbarOptions.dropdownElevation,
@@ -1686,26 +1674,25 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 items: [
                   CustomDropdownMenuItem(
                     value: 'lower',
-                    child: PointerInterceptor(child: Text('lowercase')),
+                    child: PointerInterceptor(child: const Text('lowercase')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'sentence',
-                    child: PointerInterceptor(child: Text('Sentence case')),
+                    child: PointerInterceptor(child: const Text('Sentence case')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'title',
-                    child: PointerInterceptor(child: Text('Title Case')),
+                    child: PointerInterceptor(child: const Text('Title Case')),
                   ),
                   CustomDropdownMenuItem(
                     value: 'upper',
-                    child: PointerInterceptor(child: Text('UPPERCASE')),
+                    child: PointerInterceptor(child: const Text('UPPERCASE')),
                   ),
                 ],
-                hint: Text('Change case'),
-                value: null,
+                hint: const Text('Change case'),
                 onChanged: (String? changed) async {
                   if (changed != null) {
-                    var proceed = await widget
+                    final proceed = await widget
                             .htmlToolbarOptions.onDropdownChanged
                             ?.call(DropdownType.caseConverter, changed, null) ??
                         true;
@@ -1741,14 +1728,14 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                   }
                               }
                           }
-                        """);
+                        """,);
                       }
                     }
                   }
                 },
               ),
             ),
-          ));
+          ),);
         }
       }
       if (t is InsertButtons &&
@@ -1780,7 +1767,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
           textStyle: widget.htmlToolbarOptions.textStyle,
           onPressed: (int index) async {
             if (t.getIcons()[index].icon == Icons.link) {
-              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+              final proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.link, null, null) ??
                   true;
               if (proceed) {
@@ -1797,7 +1784,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Link'),
+                            title: const Text('Insert Link'),
                             scrollable: true,
                             content: Form(
                               key: formKey,
@@ -1805,15 +1792,15 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Text to display',
+                                    const Text('Text to display',
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 10),
+                                            fontWeight: FontWeight.bold,),),
+                                    const SizedBox(height: 10),
                                     TextField(
                                       controller: text,
                                       focusNode: textFocus,
                                       textInputAction: TextInputAction.next,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         border: OutlineInputBorder(),
                                         hintText: 'Text',
                                       ),
@@ -1821,16 +1808,16 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         urlFocus.requestFocus();
                                       },
                                     ),
-                                    SizedBox(height: 20),
-                                    Text('URL',
+                                    const SizedBox(height: 20),
+                                    const Text('URL',
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 10),
+                                            fontWeight: FontWeight.bold,),),
+                                    const SizedBox(height: 10),
                                     TextFormField(
                                       controller: url,
                                       focusNode: urlFocus,
                                       textInputAction: TextInputAction.done,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         border: OutlineInputBorder(),
                                         hintText: 'URL',
                                       ),
@@ -1844,11 +1831,11 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     Row(
                                       children: <Widget>[
                                         SizedBox(
-                                          height: 48.0,
-                                          width: 24.0,
+                                          height: 48,
+                                          width: 24,
                                           child: Checkbox(
                                             value: openNewTab,
-                                            activeColor: Color(0xFF827250),
+                                            activeColor: const Color(0xFF827250),
                                             onChanged: (bool? value) {
                                               setState(() {
                                                 openNewTab = value!;
@@ -1860,9 +1847,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                           style: ElevatedButton.styleFrom(
                                               backgroundColor: Theme.of(context)
                                                   .dialogBackgroundColor,
-                                              padding: EdgeInsets.only(
-                                                  left: 5, right: 5),
-                                              elevation: 0.0),
+                                              padding: const EdgeInsets.only(
+                                                  left: 5, right: 5,),
+                                              elevation: 0,),
                                           onPressed: () {
                                             setState(() {
                                               openNewTab = !openNewTab;
@@ -1873,23 +1860,23 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                   color: Theme.of(context)
                                                       .textTheme
                                                       .bodyLarge
-                                                      ?.color)),
+                                                      ?.color,),),
                                         ),
                                       ],
                                     ),
-                                  ]),
+                                  ],),
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () async {
                                   if (formKey.currentState!.validate()) {
-                                    var proceed = await widget
+                                    final proceed = await widget
                                             .htmlToolbarOptions
                                             .linkInsertInterceptor
                                             ?.call(
@@ -1897,7 +1884,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                     ? url.text
                                                     : text.text,
                                                 url.text,
-                                                openNewTab) ??
+                                                openNewTab,) ??
                                         true;
                                     if (proceed) {
                                       widget.controller.insertLink(
@@ -1911,17 +1898,17 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: const Text('OK'),
                               )
                             ],
                           );
-                        }),
+                        },),
                       );
-                    });
+                    },);
               }
             }
             if (t.getIcons()[index].icon == Icons.image_outlined) {
-              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+              final proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.picture, null, null) ??
                   true;
               if (proceed) {
@@ -1937,7 +1924,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Image'),
+                            title: const Text('Insert Image'),
                             scrollable: true,
                             content: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -1945,12 +1932,12 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                 children: [
                                   if (widget
                                       .htmlToolbarOptions.allowImagePicking)
-                                    Text('Select from files',
+                                    const Text('Select from files',
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
+                                            fontWeight: FontWeight.bold,),),
                                   if (widget
                                       .htmlToolbarOptions.allowImagePicking)
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                   if (widget
                                       .htmlToolbarOptions.allowImagePicking)
                                     TextFormField(
@@ -1962,9 +1949,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                 backgroundColor:
                                                     Theme.of(context)
                                                         .dialogBackgroundColor,
-                                                padding: EdgeInsets.only(
-                                                    left: 5, right: 5),
-                                                elevation: 0.0),
+                                                padding: const EdgeInsets.only(
+                                                    left: 5, right: 5,),
+                                                elevation: 0,),
                                             onPressed: () async {
                                               result = await FilePicker.platform
                                                   .pickFiles(
@@ -1987,51 +1974,51 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                     color: Theme.of(context)
                                                         .textTheme
                                                         .bodyLarge
-                                                        ?.color)),
+                                                        ?.color,),),
                                           ),
                                           suffixIcon: result != null
                                               ? IconButton(
-                                                  icon: Icon(Icons.close),
+                                                  icon: const Icon(Icons.close),
                                                   onPressed: () {
                                                     setState(() {
                                                       result = null;
                                                       filename.text = '';
                                                     });
-                                                  })
-                                              : Container(height: 0, width: 0),
+                                                  },)
+                                              : const SizedBox.shrink(),
                                           errorText: validateFailed,
                                           errorMaxLines: 2,
                                           border: InputBorder.none,
-                                        )),
+                                        ),),
                                   if (widget
                                       .htmlToolbarOptions.allowImagePicking)
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                   if (widget
                                       .htmlToolbarOptions.allowImagePicking)
-                                    Text('URL',
+                                    const Text('URL',
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
+                                            fontWeight: FontWeight.bold,),),
                                   if (widget
                                       .htmlToolbarOptions.allowImagePicking)
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                   TextField(
                                     controller: url,
                                     focusNode: urlFocus,
                                     textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
+                                      border: const OutlineInputBorder(),
                                       hintText: 'URL',
                                       errorText: validateFailed,
                                       errorMaxLines: 2,
                                     ),
                                   ),
-                                ]),
+                                ],),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -2051,44 +2038,44 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       result?.files.single.bytes != null) {
-                                    var base64Data = base64
+                                    final base64Data = base64
                                         .encode(result!.files.single.bytes!);
-                                    var proceed = await widget
+                                    final proceed = await widget
                                             .htmlToolbarOptions
                                             .mediaUploadInterceptor
                                             ?.call(result!.files.single,
-                                                InsertFileType.image) ??
+                                                InsertFileType.image,) ??
                                         true;
                                     if (proceed) {
                                       widget.controller.insertHtml(
-                                          "<img src='data:image/${result!.files.single.extension};base64,$base64Data' data-filename='${result!.files.single.name}'/>");
+                                          "<img src='data:image/${result!.files.single.extension};base64,$base64Data' data-filename='${result!.files.single.name}'/>",);
                                     }
                                     Navigator.of(context).pop();
                                   } else {
-                                    var proceed = await widget
+                                    final proceed = await widget
                                             .htmlToolbarOptions
                                             .mediaLinkInsertInterceptor
                                             ?.call(url.text,
-                                                InsertFileType.image) ??
+                                                InsertFileType.image,) ??
                                         true;
                                     if (proceed) {
                                       widget.controller
                                           .insertNetworkImage(url.text);
                                     }
-                                    Navigator.of(context).pop();
+                                    Navigator.maybeOf(context)?.pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: const Text('OK'),
                               )
                             ],
                           );
-                        }),
+                        },),
                       );
-                    });
+                    },);
               }
             }
             if (t.getIcons()[index].icon == Icons.audiotrack_outlined) {
-              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+              final proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.audio, null, null) ??
                   true;
               if (proceed) {
@@ -2104,16 +2091,16 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Audio'),
+                            title: const Text('Insert Audio'),
                             scrollable: true,
                             content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Select from files',
+                                  const Text('Select from files',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  SizedBox(height: 10),
+                                          fontWeight: FontWeight.bold,),),
+                                  const SizedBox(height: 10),
                                   TextFormField(
                                       controller: filename,
                                       readOnly: true,
@@ -2122,9 +2109,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                           style: ElevatedButton.styleFrom(
                                               backgroundColor: Theme.of(context)
                                                   .dialogBackgroundColor,
-                                              padding: EdgeInsets.only(
-                                                  left: 5, right: 5),
-                                              elevation: 0.0),
+                                              padding: const EdgeInsets.only(
+                                                  left: 5, right: 5,),
+                                              elevation: 0,),
                                           onPressed: () async {
                                             result = await FilePicker.platform
                                                 .pickFiles(
@@ -2147,45 +2134,45 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                   color: Theme.of(context)
                                                       .textTheme
                                                       .bodyLarge
-                                                      ?.color)),
+                                                      ?.color,),),
                                         ),
                                         suffixIcon: result != null
                                             ? IconButton(
-                                                icon: Icon(Icons.close),
+                                                icon: const Icon(Icons.close),
                                                 onPressed: () {
                                                   setState(() {
                                                     result = null;
                                                     filename.text = '';
                                                   });
-                                                })
-                                            : Container(height: 0, width: 0),
+                                                },)
+                                            : const SizedBox.shrink(),
                                         errorText: validateFailed,
                                         errorMaxLines: 2,
                                         border: InputBorder.none,
-                                      )),
-                                  SizedBox(height: 20),
-                                  Text('URL',
+                                      ),),
+                                  const SizedBox(height: 20),
+                                  const Text('URL',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  SizedBox(height: 10),
+                                          fontWeight: FontWeight.bold,),),
+                                  const SizedBox(height: 10),
                                   TextField(
                                     controller: url,
                                     focusNode: urlFocus,
                                     textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
+                                      border: const OutlineInputBorder(),
                                       hintText: 'URL',
                                       errorText: validateFailed,
                                       errorMaxLines: 2,
                                     ),
                                   ),
-                                ]),
+                                ],),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -2203,44 +2190,44 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       result?.files.single.bytes != null) {
-                                    var base64Data = base64
+                                    final base64Data = base64
                                         .encode(result!.files.single.bytes!);
-                                    var proceed = await widget
+                                    final proceed = await widget
                                             .htmlToolbarOptions
                                             .mediaUploadInterceptor
                                             ?.call(result!.files.single,
-                                                InsertFileType.audio) ??
+                                                InsertFileType.audio,) ??
                                         true;
                                     if (proceed) {
                                       widget.controller.insertHtml(
-                                          "<audio controls src='data:audio/${result!.files.single.extension};base64,$base64Data' data-filename='${result!.files.single.name}'></audio>");
+                                          "<audio controls src='data:audio/${result!.files.single.extension};base64,$base64Data' data-filename='${result!.files.single.name}'></audio>",);
                                     }
                                     Navigator.of(context).pop();
                                   } else {
-                                    var proceed = await widget
+                                    final proceed = await widget
                                             .htmlToolbarOptions
                                             .mediaLinkInsertInterceptor
                                             ?.call(url.text,
-                                                InsertFileType.audio) ??
+                                                InsertFileType.audio,) ??
                                         true;
                                     if (proceed) {
                                       widget.controller.insertHtml(
-                                          "<audio controls src='${url.text}'></audio>");
+                                          "<audio controls src='${url.text}'></audio>",);
                                     }
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: const Text('OK'),
                               )
                             ],
                           );
-                        }),
+                        },),
                       );
-                    });
+                    },);
               }
             }
             if (t.getIcons()[index].icon == Icons.videocam_outlined) {
-              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+              final proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.video, null, null) ??
                   true;
               if (proceed) {
@@ -2256,16 +2243,16 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Video'),
+                            title: const Text('Insert Video'),
                             scrollable: true,
                             content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Select from files',
+                                  const Text('Select from files',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  SizedBox(height: 10),
+                                          fontWeight: FontWeight.bold,),),
+                                  const SizedBox(height: 10),
                                   TextFormField(
                                       controller: filename,
                                       readOnly: true,
@@ -2274,9 +2261,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                           style: ElevatedButton.styleFrom(
                                               backgroundColor: Theme.of(context)
                                                   .dialogBackgroundColor,
-                                              padding: EdgeInsets.only(
-                                                  left: 5, right: 5),
-                                              elevation: 0.0),
+                                              padding: const EdgeInsets.only(
+                                                  left: 5, right: 5,),
+                                              elevation: 0,),
                                           onPressed: () async {
                                             result = await FilePicker.platform
                                                 .pickFiles(
@@ -2299,45 +2286,45 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                   color: Theme.of(context)
                                                       .textTheme
                                                       .bodyLarge
-                                                      ?.color)),
+                                                      ?.color,),),
                                         ),
                                         suffixIcon: result != null
                                             ? IconButton(
-                                                icon: Icon(Icons.close),
+                                                icon: const Icon(Icons.close),
                                                 onPressed: () {
                                                   setState(() {
                                                     result = null;
                                                     filename.text = '';
                                                   });
-                                                })
-                                            : Container(height: 0, width: 0),
+                                                },)
+                                            : const SizedBox.shrink(),
                                         errorText: validateFailed,
                                         errorMaxLines: 2,
                                         border: InputBorder.none,
-                                      )),
-                                  SizedBox(height: 20),
-                                  Text('URL',
+                                      ),),
+                                  const SizedBox(height: 20),
+                                  const Text('URL',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  SizedBox(height: 10),
+                                          fontWeight: FontWeight.bold,),),
+                                  const SizedBox(height: 10),
                                   TextField(
                                     controller: url,
                                     focusNode: urlFocus,
                                     textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
+                                      border: const OutlineInputBorder(),
                                       hintText: 'URL',
                                       errorText: validateFailed,
                                       errorMaxLines: 2,
                                     ),
                                   ),
-                                ]),
+                                ],),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -2355,44 +2342,44 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     });
                                   } else if (filename.text.isNotEmpty &&
                                       result?.files.single.bytes != null) {
-                                    var base64Data = base64
+                                    final base64Data = base64
                                         .encode(result!.files.single.bytes!);
-                                    var proceed = await widget
+                                    final proceed = await widget
                                             .htmlToolbarOptions
                                             .mediaUploadInterceptor
                                             ?.call(result!.files.single,
-                                                InsertFileType.video) ??
+                                                InsertFileType.video,) ??
                                         true;
                                     if (proceed) {
                                       widget.controller.insertHtml(
-                                          "<video controls src='data:video/${result!.files.single.extension};base64,$base64Data' data-filename='${result!.files.single.name}'></video>");
+                                          "<video controls src='data:video/${result!.files.single.extension};base64,$base64Data' data-filename='${result!.files.single.name}'></video>",);
                                     }
                                     Navigator.of(context).pop();
                                   } else {
-                                    var proceed = await widget
+                                    final proceed = await widget
                                             .htmlToolbarOptions
                                             .mediaLinkInsertInterceptor
                                             ?.call(url.text,
-                                                InsertFileType.video) ??
+                                                InsertFileType.video,) ??
                                         true;
                                     if (proceed) {
                                       widget.controller.insertHtml(
-                                          "<video controls src='${url.text}'></video>");
+                                          "<video controls src='${url.text}'></video>",);
                                     }
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: const Text('OK'),
                               )
                             ],
                           );
-                        }),
+                        },),
                       );
-                    });
+                    },);
               }
             }
             if (t.getIcons()[index].icon == Icons.attach_file) {
-              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+              final proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.otherFile, null, null) ??
                   true;
               if (proceed) {
@@ -2408,16 +2395,16 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert File'),
+                            title: const Text('Insert File'),
                             scrollable: true,
                             content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Select from files',
+                                  const Text('Select from files',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  SizedBox(height: 10),
+                                          fontWeight: FontWeight.bold,),),
+                                  const SizedBox(height: 10),
                                   TextFormField(
                                       controller: filename,
                                       readOnly: true,
@@ -2426,13 +2413,12 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                           style: ElevatedButton.styleFrom(
                                               backgroundColor: Theme.of(context)
                                                   .dialogBackgroundColor,
-                                              padding: EdgeInsets.only(
-                                                  left: 5, right: 5),
-                                              elevation: 0.0),
+                                              padding: const EdgeInsets.only(
+                                                  left: 5, right: 5,),
+                                              elevation: 0,),
                                           onPressed: () async {
                                             result = await FilePicker.platform
                                                 .pickFiles(
-                                              type: FileType.any,
                                               withData: true,
                                               allowedExtensions: widget
                                                   .htmlToolbarOptions
@@ -2451,45 +2437,45 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                   color: Theme.of(context)
                                                       .textTheme
                                                       .bodyLarge
-                                                      ?.color)),
+                                                      ?.color,),),
                                         ),
                                         suffixIcon: result != null
                                             ? IconButton(
-                                                icon: Icon(Icons.close),
+                                                icon: const Icon(Icons.close),
                                                 onPressed: () {
                                                   setState(() {
                                                     result = null;
                                                     filename.text = '';
                                                   });
-                                                })
-                                            : Container(height: 0, width: 0),
+                                                },)
+                                            : const SizedBox.shrink(),
                                         errorText: validateFailed,
                                         errorMaxLines: 2,
                                         border: InputBorder.none,
-                                      )),
-                                  SizedBox(height: 20),
-                                  Text('URL',
+                                      ),),
+                                  const SizedBox(height: 20),
+                                  const Text('URL',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  SizedBox(height: 10),
+                                          fontWeight: FontWeight.bold,),),
+                                  const SizedBox(height: 10),
                                   TextField(
                                     controller: url,
                                     focusNode: urlFocus,
                                     textInputAction: TextInputAction.done,
                                     decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
+                                      border: const OutlineInputBorder(),
                                       hintText: 'URL',
                                       errorText: validateFailed,
                                       errorMaxLines: 2,
                                     ),
                                   ),
-                                ]),
+                                ],),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -2517,17 +2503,17 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     Navigator.of(context).pop();
                                   }
                                 },
-                                child: Text('OK'),
+                                child: const Text('OK'),
                               )
                             ],
                           );
-                        }),
+                        },),
                       );
-                    });
+                    },);
               }
             }
             if (t.getIcons()[index].icon == Icons.table_chart_outlined) {
-              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+              final proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.table, null, null) ??
                   true;
               if (proceed) {
@@ -2540,7 +2526,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                         child: StatefulBuilder(builder:
                             (BuildContext context, StateSetter setState) {
                           return AlertDialog(
-                            title: Text('Insert Table'),
+                            title: const Text('Insert Table'),
                             scrollable: true,
                             content: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -2554,7 +2540,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     onChanged: (value) =>
                                         setState(() => currentRows = value),
                                   ),
-                                  Text('x'),
+                                  const Text('x'),
                                   NumberPicker(
                                     value: currentCols,
                                     minValue: 1,
@@ -2562,38 +2548,38 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                     onChanged: (value) =>
                                         setState(() => currentCols = value),
                                   ),
-                                ]),
+                                ],),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () async {
                                   if (kIsWeb) {
                                     widget.controller.insertTable(
-                                        '${currentRows}x$currentCols');
+                                        '${currentRows}x$currentCols',);
                                   } else {
                                     await widget.controller.editorController!
                                         .evaluateJavascript(
                                             source:
-                                                "\$('#summernote-2').summernote('insertTable', '${currentRows}x$currentCols');");
+                                                "\$('#summernote-2').summernote('insertTable', '${currentRows}x$currentCols');",);
                                   }
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('OK'),
+                                child: const Text('OK'),
                               )
                             ],
                           );
-                        }),
+                        },),
                       );
-                    });
+                    },);
               }
             }
             if (t.getIcons()[index].icon == Icons.horizontal_rule) {
-              var proceed = await widget.htmlToolbarOptions.onButtonPressed
+              final proceed = await widget.htmlToolbarOptions.onButtonPressed
                       ?.call(ButtonType.hr, null, null) ??
                   true;
               if (proceed) {
@@ -2603,7 +2589,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
           },
           isSelected: List<bool>.filled(t.getIcons().length, false),
           children: t.getIcons(),
-        ));
+        ),);
       }
       if (t is OtherButtons) {
         if (t.fullscreen || t.codeview || t.undo || t.redo || t.help) {
@@ -2634,9 +2620,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
               }
 
               if (t.getIcons1()[index].icon == Icons.fullscreen) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.fullscreen, _miscSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.setFullScreen();
@@ -2644,9 +2630,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.code) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.codeview, _miscSelected[index],
-                            updateStatus) ??
+                            updateStatus,) ??
                     true;
                 if (proceed) {
                   widget.controller.toggleCodeView();
@@ -2654,7 +2640,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.undo) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.undo, null, null) ??
                     true;
                 if (proceed) {
@@ -2662,7 +2648,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.redo) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.redo, null, null) ??
                     true;
                 if (proceed) {
@@ -2670,7 +2656,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 }
               }
               if (t.getIcons1()[index].icon == Icons.help_outline) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.help, null, null) ??
                     true;
                 if (proceed) {
@@ -2681,9 +2667,9 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                           child: StatefulBuilder(builder:
                               (BuildContext context, StateSetter setState) {
                             return AlertDialog(
-                              title: Text('Help'),
+                              title: const Text('Help'),
                               scrollable: true,
-                              content: Container(
+                              content: SizedBox(
                                 height: MediaQuery.of(context).size.height / 2,
                                 child: SingleChildScrollView(
                                   child: DataTable(
@@ -2695,14 +2681,14 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         label: Text(
                                           'Key Combination',
                                           style: TextStyle(
-                                              fontStyle: FontStyle.italic),
+                                              fontStyle: FontStyle.italic,),
                                         ),
                                       ),
                                       DataColumn(
                                         label: Text(
                                           'Action',
                                           style: TextStyle(
-                                              fontStyle: FontStyle.italic),
+                                              fontStyle: FontStyle.italic,),
                                         ),
                                       ),
                                     ],
@@ -2723,21 +2709,21 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+Z')),
                                           DataCell(
-                                              Text('Undo the last command')),
+                                              Text('Undo the last command'),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+Z')),
                                           DataCell(
-                                              Text('Undo the last command')),
+                                              Text('Undo the last command'),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+Y')),
                                           DataCell(
-                                              Text('Redo the last command')),
+                                              Text('Redo the last command'),),
                                         ],
                                       ),
                                       DataRow(
@@ -2768,14 +2754,14 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+U')),
                                           DataCell(
-                                              Text('Set an underline style')),
+                                              Text('Set an underline style'),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+SHIFT+S')),
                                           DataCell(Text(
-                                              'Set a strikethrough style')),
+                                              'Set a strikethrough style',),),
                                         ],
                                       ),
                                       DataRow(
@@ -2812,7 +2798,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+SHIFT+NUM7')),
                                           DataCell(
-                                              Text('Toggle unordered list')),
+                                              Text('Toggle unordered list'),),
                                         ],
                                       ),
                                       DataRow(
@@ -2825,70 +2811,70 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+LEFTBRACKET')),
                                           DataCell(Text(
-                                              'Outdent on current paragraph')),
+                                              'Outdent on current paragraph',),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+RIGHTBRACKET')),
                                           DataCell(Text(
-                                              'Indent on current paragraph')),
+                                              'Indent on current paragraph',),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+NUM0')),
                                           DataCell(Text(
-                                              'Change current block\'s format as a paragraph (<p> tag)')),
+                                              "Change current block's format as a paragraph (<p> tag)",),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+NUM1')),
                                           DataCell(Text(
-                                              'Change current block\'s format as H1')),
+                                              "Change current block's format as H1",),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+NUM2')),
                                           DataCell(Text(
-                                              'Change current block\'s format as H2')),
+                                              "Change current block's format as H2",),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+NUM3')),
                                           DataCell(Text(
-                                              'Change current block\'s format as H3')),
+                                              "Change current block's format as H3",),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+NUM4')),
                                           DataCell(Text(
-                                              'Change current block\'s format as H4')),
+                                              "Change current block's format as H4",),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+NUM5')),
                                           DataCell(Text(
-                                              'Change current block\'s format as H5')),
+                                              "Change current block's format as H5",),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+NUM6')),
                                           DataCell(Text(
-                                              'Change current block\'s format as H6')),
+                                              "Change current block's format as H6",),),
                                         ],
                                       ),
                                       DataRow(
                                         cells: <DataCell>[
                                           DataCell(Text('CTRL+ENTER')),
                                           DataCell(
-                                              Text('Insert horizontal rule')),
+                                              Text('Insert horizontal rule'),),
                                         ],
                                       ),
                                       DataRow(
@@ -2906,19 +2892,19 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                   onPressed: () async {
                                     Navigator.of(context).pop();
                                   },
-                                  child: Text('Close'),
+                                  child: const Text('Close'),
                                 )
                               ],
                             );
-                          }),
+                          },),
                         );
-                      });
+                      },);
                 }
               }
             },
             isSelected: _miscSelected,
             children: t.getIcons1(),
-          ));
+          ),);
         }
         if (t.copy || t.paste) {
           toolbarChildren.add(ToggleButtons(
@@ -2942,22 +2928,22 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             textStyle: widget.htmlToolbarOptions.textStyle,
             onPressed: (int index) async {
               if (t.getIcons2()[index].icon == Icons.copy) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.copy, null, null) ??
                     true;
                 if (proceed) {
-                  var data = await widget.controller.getText();
+                  final data = await widget.controller.getText();
                   await Clipboard.setData(ClipboardData(text: data));
                 }
               }
               if (t.getIcons2()[index].icon == Icons.paste) {
-                var proceed = await widget.htmlToolbarOptions.onButtonPressed
+                final proceed = await widget.htmlToolbarOptions.onButtonPressed
                         ?.call(ButtonType.paste, null, null) ??
                     true;
                 if (proceed) {
-                  var data = await Clipboard.getData(Clipboard.kTextPlain);
+                  final data = await Clipboard.getData(Clipboard.kTextPlain);
                   if (data != null) {
-                    var text = data.text!;
+                    final text = data.text!;
                     widget.controller.insertHtml(text);
                   }
                 }
@@ -2965,7 +2951,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
             },
             isSelected: List<bool>.filled(t.getIcons2().length, false),
             children: t.getIcons2(),
-          ));
+          ),);
         }
       }
     }
@@ -2978,15 +2964,15 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
         if (widget.htmlToolbarOptions.customToolbarInsertionIndices[i] >
             toolbarChildren.length) {
           toolbarChildren.insert(toolbarChildren.length,
-              widget.htmlToolbarOptions.customToolbarButtons[i]);
+              widget.htmlToolbarOptions.customToolbarButtons[i],);
         } else if (widget.htmlToolbarOptions.customToolbarInsertionIndices[i] <
             0) {
           toolbarChildren.insert(
-              0, widget.htmlToolbarOptions.customToolbarButtons[i]);
+              0, widget.htmlToolbarOptions.customToolbarButtons[i],);
         } else {
           toolbarChildren.insert(
               widget.htmlToolbarOptions.customToolbarInsertionIndices[i],
-              widget.htmlToolbarOptions.customToolbarButtons[i]);
+              widget.htmlToolbarOptions.customToolbarButtons[i],);
         }
       }
     } else {
@@ -2994,7 +2980,7 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
     }
     if (widget.htmlToolbarOptions.renderSeparatorWidget) {
       toolbarChildren = intersperse(
-              widget.htmlToolbarOptions.separatorWidget, toolbarChildren)
+              widget.htmlToolbarOptions.separatorWidget, toolbarChildren,)
           .toList();
     }
     return toolbarChildren;

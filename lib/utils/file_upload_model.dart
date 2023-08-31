@@ -2,7 +2,7 @@ import 'dart:convert';
 
 /// Function that creates an instance of [FileUpload] from a JSON string
 FileUpload fileUploadFromJson(String str) =>
-    FileUpload.fromJson(json.decode(str));
+    FileUpload.fromJson(json.decode(str) as Map<String, dynamic>);
 
 /// The [FileUpload] class stores any known data about a file. This class is used
 /// as an argument in some callbacks relating to image and file insertion.
@@ -45,15 +45,15 @@ class FileUpload {
 
   /// Creates an instance of [FileUpload] from a JSON string
   factory FileUpload.fromJson(Map<String, dynamic> json) => FileUpload(
-        base64: json['base64'],
-        lastModified: json['lastModified'] == null
+        base64: json['base64'] as String?,
+        lastModified: (json['lastModified'] as int?) == null
             ? null
-            : DateTime.fromMillisecondsSinceEpoch(json['lastModified']),
-        lastModifiedDate: json['lastModifiedDate'] == null
+            : DateTime.fromMillisecondsSinceEpoch(json['lastModified'] as int),
+        lastModifiedDate: (json['lastModifiedDate'] as String?) == null
             ? null
-            : DateTime.tryParse(json['lastModifiedDate']),
-        name: json['name'],
-        size: json['size'],
-        type: json['type'],
+            : DateTime.tryParse(json['lastModifiedDate'] as String),
+        name: json['name'] as String?,
+        size: json['size'] as int?,
+        type: json['type'] as String?,
       );
 }

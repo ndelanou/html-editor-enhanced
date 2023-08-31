@@ -3,7 +3,7 @@ import 'dart:collection';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:html_editor_enhanced/html_editor.dart';
+import '../html_editor.dart';
 
 /// Options that modify the editor and its behavior
 class HtmlEditorOptions {
@@ -139,13 +139,12 @@ class HtmlToolbarOptions {
       ColorButtons(),
       ListButtons(listStyles: false),
       ParagraphButtons(
-          textDirection: false, lineHeight: false, caseConverter: false),
+          textDirection: false, lineHeight: false, caseConverter: false,),
       InsertButtons(
           video: false,
           audio: false,
           table: false,
-          hr: false,
-          otherFile: false),
+          hr: false,),
     ],
     this.otherFileExtensions,
     this.imageExtensions,
@@ -416,7 +415,7 @@ class OtherOptions {
     this.decoration = const BoxDecoration(
       borderRadius: BorderRadius.all(Radius.circular(4)),
       border:
-          Border.fromBorderSide(BorderSide(color: Color(0xffececec), width: 1)),
+          Border.fromBorderSide(BorderSide(color: Color(0xffececec))),
     ),
     this.height = 400,
   });

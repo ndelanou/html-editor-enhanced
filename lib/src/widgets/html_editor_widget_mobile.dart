@@ -8,22 +8,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:html_editor_enhanced/html_editor.dart'
-    hide NavigationActionPolicy, UserScript, ContextMenu;
-import 'package:html_editor_enhanced/utils/utils.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import '../../html_editor.dart'
+    hide ContextMenu, NavigationActionPolicy, UserScript;
+import '../../utils/utils.dart';
 
 /// The HTML Editor widget itself, for mobile (uses InAppWebView)
 class HtmlEditorWidget extends StatefulWidget {
-  HtmlEditorWidget({
-    Key? key,
-    required this.controller,
+  const HtmlEditorWidget({
+    required this.controller, required this.plugins, required this.htmlEditorOptions, required this.htmlToolbarOptions, required this.otherOptions, super.key,
     this.callbacks,
-    required this.plugins,
-    required this.htmlEditorOptions,
-    required this.htmlToolbarOptions,
-    required this.otherOptions,
-  }) : super(key: key);
+  });
 
   final HtmlEditorController controller;
   final Callbacks? callbacks;
@@ -86,14 +82,14 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
   }
 
   /// resets the height of the editor to the original height
-  void resetHeight() async {
+  Future<void> resetHeight() async {
     if (mounted) {
       this.setState(() {
         docHeight = widget.otherOptions.height;
       });
       await widget.controller.editorController!.evaluateJavascript(
           source:
-              "\$('div.note-editable').outerHeight(${widget.otherOptions.height - (toolbarKey.currentContext?.size?.height ?? 0)});");
+              "\$('div.note-editable').outerHeight(${widget.otherOptions.height - (toolbarKey.currentContext?.size?.height ?? 0)});",);
     }
   }
 
@@ -112,7 +108,7 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                 : info.visibleFraction;
             visibleStream.add(info.visibleFraction == 1
                 ? (info.size.height / widget.otherOptions.height).clamp(0, 1)
-                : info.visibleFraction);
+                : info.visibleFraction,);
           }
         },
         child: Container(
@@ -120,14 +116,12 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
           decoration: widget.otherOptions.decoration,
           child: Column(
             children: [
-              widget.htmlToolbarOptions.toolbarPosition ==
-                      ToolbarPosition.aboveEditor
-                  ? ToolbarWidget(
+              if (widget.htmlToolbarOptions.toolbarPosition ==
+                      ToolbarPosition.aboveEditor) ToolbarWidget(
                       key: toolbarKey,
                       controller: widget.controller,
                       htmlToolbarOptions: widget.htmlToolbarOptions,
-                      callbacks: widget.callbacks)
-                  : Container(height: 0, width: 0),
+                      callbacks: widget.callbacks,) else const SizedBox(height: 0, width: 0),
               Expanded(
                 child: InAppWebView(
                   initialFile: filePath,
@@ -136,36 +130,33 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                     controller.addJavaScriptHandler(
                         handlerName: 'FormatSettings',
                         callback: (e) {
-                          var json = e[0] as Map<String, dynamic>;
-                          print(json);
+                          final json = e[0] as Map<String, dynamic>;
                           if (widget.controller.toolbar != null) {
                             widget.controller.toolbar!.updateToolbar(json);
                           }
-                        });
+                        },);
                   },
                   initialOptions: InAppWebViewGroupOptions(
                       crossPlatform: InAppWebViewOptions(
-                        javaScriptEnabled: true,
                         transparentBackground: true,
                         useShouldOverrideUrlLoading: true,
                       ),
                       android: AndroidInAppWebViewOptions(
                         useHybridComposition: widget
                             .htmlEditorOptions.androidUseHybridComposition,
-                        loadWithOverviewMode: true,
-                      )),
+                      ),),
                   initialUserScripts:
                       widget.htmlEditorOptions.mobileInitialScripts
                           as UnmodifiableListView<UserScript>?,
                   contextMenu: widget.htmlEditorOptions.mobileContextMenu
                       as ContextMenu?,
                   gestureRecognizers: {
-                    Factory<VerticalDragGestureRecognizer>(
-                        () => VerticalDragGestureRecognizer()),
+                    const Factory<VerticalDragGestureRecognizer>(
+                        VerticalDragGestureRecognizer.new,),
                     Factory<LongPressGestureRecognizer>(() =>
                         LongPressGestureRecognizer(
                             duration: widget
-                                .htmlEditorOptions.mobileLongPressDuration)),
+                                .htmlEditorOptions.mobileLongPressDuration,),),
                   },
                   shouldOverrideUrlLoading: (controller, action) async {
                     if (!action.request.url.toString().contains(filePath)) {
@@ -177,12 +168,15 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                     return NavigationActionPolicy.ALLOW;
                   },
                   onConsoleMessage: (controller, message) {
+                    // TODO: remove print
                     print(message.message);
                   },
                   onWindowFocus: (controller) async {
                     final scrollableState = Scrollable.maybeOf(context);
-                    if (widget.htmlEditorOptions.shouldEnsureVisible && scrollableState != null) {
-                      await scrollableState.position.ensureVisible(context.findRenderObject()!);
+                    if (widget.htmlEditorOptions.shouldEnsureVisible &&
+                        scrollableState != null) {
+                      await scrollableState.position
+                          .ensureVisible(context.findRenderObject()!);
                     }
                     if (widget.htmlEditorOptions.adjustHeightForKeyboard &&
                         mounted &&
@@ -203,7 +197,7 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                                     tempAnchorEl.remove();
                                   }
                                 }
-                              """);
+                              """,);
                       }
 
                       /// this is a workaround so jumping between focus on different
@@ -215,8 +209,8 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                         });
                         await setHeightJS();
                       }
-                      var visibleDecimal = await visibleStream.stream.first;
-                      var newHeight = widget.otherOptions.height;
+                      final visibleDecimal = await visibleStream.stream.first;
+                      final newHeight = widget.otherOptions.height;
                       if (visibleDecimal > 0.1) {
                         this.setState(() {
                           docHeight = newHeight * visibleDecimal;
@@ -228,8 +222,8 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                   },
                   onLoadStop:
                       (InAppWebViewController controller, Uri? uri) async {
-                    var url = uri.toString();
-                    var maximumFileSize = 10485760;
+                    final url = uri.toString();
+                    const maximumFileSize = 10485760;
                     if (url.contains(filePath)) {
                       var summernoteToolbar = '[\n';
                       var summernoteCallbacks = '''callbacks: {
@@ -258,8 +252,8 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                           },
                       ''';
                       if (widget.plugins.isNotEmpty) {
-                        summernoteToolbar = summernoteToolbar + "['plugins', [";
-                        for (var p in widget.plugins) {
+                        summernoteToolbar = "$summernoteToolbar['plugins', [";
+                        for (final p in widget.plugins) {
                           summernoteToolbar = summernoteToolbar +
                               (p.getToolbarString().isNotEmpty
                                   ? "'${p.getToolbarString()}'"
@@ -270,9 +264,7 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                                       ? ', '
                                       : '');
                           if (p is SummernoteAtMention) {
-                            summernoteCallbacks = summernoteCallbacks +
-                                """
-                              \nsummernoteAtMention: {
+                            summernoteCallbacks = """$summernoteCallbacks                              \nsummernoteAtMention: {
                                 getSuggestions: async function(value) {
                                   var result = await window.flutter_inappwebview.callHandler('getSuggestions', value);
                                   var resultList = result.split(',');
@@ -291,30 +283,26 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                                       .toString()
                                       .replaceAll('[', '')
                                       .replaceAll(']', '');
-                                });
+                                },);
                             if (p.onSelect != null) {
                               controller.addJavaScriptHandler(
                                   handlerName: 'onSelectMention',
                                   callback: (value) {
                                     p.onSelect!.call(value.first.toString());
-                                  });
+                                  },);
                             }
                           }
                         }
                       }
                       if (widget.callbacks != null) {
                         if (widget.callbacks!.onImageLinkInsert != null) {
-                          summernoteCallbacks = summernoteCallbacks +
-                              """
-                              onImageLinkInsert: function(url) {
+                          summernoteCallbacks = """$summernoteCallbacks                              onImageLinkInsert: function(url) {
                                 window.flutter_inappwebview.callHandler('onImageLinkInsert', url);
                               },
                             """;
                         }
                         if (widget.callbacks!.onImageUpload != null) {
-                          summernoteCallbacks = summernoteCallbacks +
-                              """
-                              onImageUpload: function(files) {
+                          summernoteCallbacks = """$summernoteCallbacks                              onImageUpload: function(files) {
                                 var reader = new FileReader();
                                 var base64 = "<an error occurred>";
                                 reader.onload = function (_) {
@@ -345,9 +333,7 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                             """;
                         }
                         if (widget.callbacks!.onImageUploadError != null) {
-                          summernoteCallbacks = summernoteCallbacks +
-                              """
-                                onImageUploadError: function(file, error) {
+                          summernoteCallbacks = """$summernoteCallbacks                                onImageUploadError: function(file, error) {
                                   if (typeof file === 'string') {
                                     window.flutter_inappwebview.callHandler('onImageUploadError', file, error);
                                   } else {
@@ -364,8 +350,8 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                             """;
                         }
                       }
-                      summernoteToolbar = summernoteToolbar + '],';
-                      summernoteCallbacks = summernoteCallbacks + '}';
+                      summernoteToolbar = '$summernoteToolbar],';
+                      summernoteCallbacks = '$summernoteCallbacks}';
                       await controller.evaluateJavascript(source: """
                           \$('#summernote-2').summernote({
                               placeholder: "${widget.htmlEditorOptions.hint ?? ""}",
@@ -443,21 +429,21 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                             };
                             window.flutter_inappwebview.callHandler('FormatSettings', message);
                           }
-                      """);
+                      """,);
                       await controller.evaluateJavascript(
                           source:
-                              "document.onselectionchange = onSelectionChange; console.log('done');");
+                              "document.onselectionchange = onSelectionChange; console.log('done');",);
                       await controller.evaluateJavascript(
                           source:
-                              "document.getElementsByClassName('note-editable')[0].setAttribute('inputmode', '${describeEnum(widget.htmlEditorOptions.inputType)}');");
+                              "document.getElementsByClassName('note-editable')[0].setAttribute('inputmode', '${describeEnum(widget.htmlEditorOptions.inputType)}');",);
                       if ((Theme.of(context).brightness == Brightness.dark ||
                               widget.htmlEditorOptions.darkMode == true) &&
                           widget.htmlEditorOptions.darkMode != false) {
                         //todo fix for iOS (https://github.com/pichillilorenzo/flutter_inappwebview/issues/695)
-                        var darkCSS =
-                            '<link href=\"${(widget.htmlEditorOptions.filePath != null ? "file:///android_asset/flutter_assets/packages/html_editor_enhanced/assets/" : "") + "summernote-lite-dark.css"}\" rel=\"stylesheet\">';
+                        final darkCSS =
+                            '<link href="${"${widget.htmlEditorOptions.filePath != null ? "file:///android_asset/flutter_assets/packages/html_editor_enhanced/assets/" : ""}summernote-lite-dark.css"}" rel="stylesheet">';
                         await controller.evaluateJavascript(
-                            source: "\$('head').append('$darkCSS');");
+                            source: "\$('head').append('$darkCSS');",);
                       }
                       //set the text once the editor is loaded
                       if (widget.htmlEditorOptions.initialText != null) {
@@ -474,21 +460,21 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                               } else {
                                 setState(mounted, this.setState, () {
                                   docHeight = (double.tryParse(
-                                              height.first.toString()) ??
+                                              height.first.toString(),) ??
                                           widget.otherOptions.height) +
                                       (toolbarKey
                                               .currentContext?.size?.height ??
                                           0);
                                 });
                               }
-                            });
+                            },);
                         await controller.evaluateJavascript(
                             source:
-                                "var height = document.body.scrollHeight; window.flutter_inappwebview.callHandler('setHeight', height);");
+                                "var height = document.body.scrollHeight; window.flutter_inappwebview.callHandler('setHeight', height);",);
                       }
                       //reset the editor's height if the keyboard disappears at any point
                       if (widget.htmlEditorOptions.adjustHeightForKeyboard) {
-                        var keyboardVisibilityController =
+                        final keyboardVisibilityController =
                             KeyboardVisibilityController();
                         keyboardVisibilityController.onChange
                             .listen((bool visible) {
@@ -498,12 +484,13 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                           }
                         });
                       }
-                      widget.controller.editorController!.addJavaScriptHandler(
+                      final editorController = widget.controller.editorController as InAppWebViewController;
+                      editorController.addJavaScriptHandler(
                           handlerName: 'totalChars',
                           callback: (keyCode) {
-                            widget.controller.characterCount =
-                                keyCode.first as int;
-                          });
+                            final key = keyCode.first as int;
+                            widget.controller.characterCount = key;
+                          },);
                       //disable editor if necessary
                       if (widget.htmlEditorOptions.disabled &&
                           !callbacksInitialized) {
@@ -525,27 +512,27 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                           handlerName: 'onChangeContent',
                           callback: (contents) {
                             final scrollableState = Scrollable.maybeOf(context);
-                            if (widget.htmlEditorOptions.shouldEnsureVisible && scrollableState != null) {
-                              scrollableState.position.ensureVisible(context.findRenderObject()!);
+                            if (widget.htmlEditorOptions.shouldEnsureVisible &&
+                                scrollableState != null) {
+                              scrollableState.position
+                                  .ensureVisible(context.findRenderObject()!);
                             }
                             if (widget.callbacks != null &&
                                 widget.callbacks!.onChangeContent != null) {
                               widget.callbacks!.onChangeContent!
                                   .call(contents.first.toString());
                             }
-                          });
+                          },);
                     }
                   },
                 ),
               ),
-              widget.htmlToolbarOptions.toolbarPosition ==
-                      ToolbarPosition.belowEditor
-                  ? ToolbarWidget(
+              if (widget.htmlToolbarOptions.toolbarPosition ==
+                      ToolbarPosition.belowEditor) ToolbarWidget(
                       key: toolbarKey,
                       controller: widget.controller,
                       htmlToolbarOptions: widget.htmlToolbarOptions,
-                      callbacks: widget.callbacks)
-                  : Container(height: 0, width: 0),
+                      callbacks: widget.callbacks,) else const SizedBox(height: 0, width: 0),
             ],
           ),
         ),
@@ -556,170 +543,174 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
   /// adds the callbacks set by the user into the scripts
   void addJSCallbacks(Callbacks c) {
     if (c.onBeforeCommand != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.before.command', function(_, contents) {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.before.command', function(_, contents) {
             window.flutter_inappwebview.callHandler('onBeforeCommand', contents);
           });
-        """);
+        """,);
     }
     if (c.onChangeCodeview != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.change.codeview', function(_, contents, \$editable) {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.change.codeview', function(_, contents, $editable) {
             window.flutter_inappwebview.callHandler('onChangeCodeview', contents);
           });
-        """);
+        """,);
     }
     if (c.onDialogShown != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.dialog.shown', function() {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.dialog.shown', function() {
             window.flutter_inappwebview.callHandler('onDialogShown', 'fired');
           });
-        """);
+        """,);
     }
     if (c.onEnter != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.enter', function() {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.enter', function() {
             window.flutter_inappwebview.callHandler('onEnter', 'fired');
           });
-        """);
+        """,);
     }
     if (c.onFocus != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.focus', function() {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.focus', function() {
             window.flutter_inappwebview.callHandler('onFocus', 'fired');
           });
-        """);
+        """,);
     }
     if (c.onBlur != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.blur', function() {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.blur', function() {
             window.flutter_inappwebview.callHandler('onBlur', 'fired');
           });
-        """);
+        """,);
     }
     if (c.onBlurCodeview != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.blur.codeview', function() {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.blur.codeview', function() {
             window.flutter_inappwebview.callHandler('onBlurCodeview', 'fired');
           });
-        """);
+        """,);
     }
     if (c.onKeyDown != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.keydown', function(_, e) {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.keydown', function(_, e) {
             window.flutter_inappwebview.callHandler('onKeyDown', e.keyCode);
           });
-        """);
+        """,);
     }
     if (c.onKeyUp != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.keyup', function(_, e) {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.keyup', function(_, e) {
             window.flutter_inappwebview.callHandler('onKeyUp', e.keyCode);
           });
-        """);
+        """,);
     }
     if (c.onMouseDown != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.mousedown', function(_) {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.mousedown', function(_) {
             window.flutter_inappwebview.callHandler('onMouseDown', 'fired');
           });
-        """);
+        """,);
     }
     if (c.onMouseUp != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.mouseup', function(_) {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.mouseup', function(_) {
             window.flutter_inappwebview.callHandler('onMouseUp', 'fired');
           });
-        """);
+        """,);
     }
     if (c.onPaste != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.paste', function(_) {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.paste', function(_) {
             window.flutter_inappwebview.callHandler('onPaste', 'fired');
           });
-        """);
+        """,);
     }
     if (c.onScroll != null) {
-      widget.controller.editorController!.evaluateJavascript(source: """
-          \$('#summernote-2').on('summernote.scroll', function(_) {
+      widget.controller.editorController!.evaluateJavascript(source: r"""
+          $('#summernote-2').on('summernote.scroll', function(_) {
             window.flutter_inappwebview.callHandler('onScroll', 'fired');
           });
-        """);
+        """,);
     }
   }
 
   /// creates flutter_inappwebview JavaScript Handlers to handle any callbacks the
   /// user has defined
   void addJSHandlers(Callbacks c) {
+    final editorController = widget.controller.editorController as InAppWebViewController;
     if (c.onBeforeCommand != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onBeforeCommand',
           callback: (contents) {
             c.onBeforeCommand!.call(contents.first.toString());
-          });
+          },);
     }
     if (c.onChangeCodeview != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onChangeCodeview',
           callback: (contents) {
             c.onChangeCodeview!.call(contents.first.toString());
-          });
+          },);
     }
     if (c.onDialogShown != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onDialogShown',
           callback: (_) {
             c.onDialogShown!.call();
-          });
+          },);
     }
     if (c.onEnter != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onEnter',
           callback: (_) {
             c.onEnter!.call();
-          });
+          },);
     }
     if (c.onFocus != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onFocus',
           callback: (_) {
             c.onFocus!.call();
-          });
+          },);
     }
     if (c.onBlur != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onBlur',
           callback: (_) {
             c.onBlur!.call();
-          });
+          },);
     }
     if (c.onBlurCodeview != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onBlurCodeview',
           callback: (_) {
             c.onBlurCodeview!.call();
-          });
+          },);
     }
     if (c.onImageLinkInsert != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onImageLinkInsert',
           callback: (url) {
             c.onImageLinkInsert!.call(url.first.toString());
-          });
+          },);
     }
     if (c.onImageUpload != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onImageUpload',
           callback: (files) {
-            var file = fileUploadFromJson(files.first);
+            final jsonFile = files.first as String;
+            final file = fileUploadFromJson(jsonFile);
             c.onImageUpload!.call(file);
-          });
+          },);
     }
     if (c.onImageUploadError != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onImageUploadError',
           callback: (args) {
-            if (!args.first.toString().startsWith('{')) {
+            if (args is! List<String>) throw Exception('args is not a List<String>');
+            
+            if (!args.first.startsWith('{')) {
               c.onImageUploadError!.call(
                   null,
                   args.first,
@@ -727,9 +718,9 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                       ? UploadError.jsException
                       : args.last.contains('unsupported')
                           ? UploadError.unsupportedFile
-                          : UploadError.exceededMaxSize);
+                          : UploadError.exceededMaxSize,);
             } else {
-              var file = fileUploadFromJson(args.first.toString());
+              final file = fileUploadFromJson(args.first);
               c.onImageUploadError!.call(
                   file,
                   null,
@@ -737,51 +728,53 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                       ? UploadError.jsException
                       : args.last.contains('unsupported')
                           ? UploadError.unsupportedFile
-                          : UploadError.exceededMaxSize);
+                          : UploadError.exceededMaxSize,);
             }
-          });
+          },);
     }
     if (c.onKeyDown != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onKeyDown',
           callback: (keyCode) {
-            c.onKeyDown!.call(keyCode.first);
-          });
+            final key = keyCode.first as int;
+            c.onKeyDown!.call(key);
+          },);
     }
     if (c.onKeyUp != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onKeyUp',
           callback: (keyCode) {
-            c.onKeyUp!.call(keyCode.first);
-          });
+            final key = keyCode.first as int;
+            c.onKeyUp!.call(key);
+          },);
     }
     if (c.onMouseDown != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onMouseDown',
           callback: (_) {
             c.onMouseDown!.call();
-          });
+          },);
     }
     if (c.onMouseUp != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onMouseUp',
           callback: (_) {
             c.onMouseUp!.call();
-          });
+          },);
     }
     if (c.onPaste != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onPaste',
           callback: (_) {
             c.onPaste!.call();
-          });
+          },);
     }
     if (c.onScroll != null) {
-      widget.controller.editorController!.addJavaScriptHandler(
+      editorController.addJavaScriptHandler(
           handlerName: 'onScroll',
           callback: (_) {
             c.onScroll!.call();
-          });
+          },);
     }
   }
 }
