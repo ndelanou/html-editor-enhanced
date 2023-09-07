@@ -55,7 +55,6 @@ class _TestScreenState extends State<TestScreen> {
             ),
             Expanded(
               child: HtmlEditor(
-                focusNode: focusNode,
                 controller: controller,
                 callbacks: Callbacks(
                   onInit: () {
