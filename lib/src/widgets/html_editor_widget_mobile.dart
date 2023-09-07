@@ -131,9 +131,11 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                   : Container(height: 0, width: 0),
               Expanded(
                 child: InAppWebView(
-                  initialFile: filePath,
-                  onWebViewCreated: (InAppWebViewController controller) {
+                  onWebViewCreated: (InAppWebViewController controller) async {
                     widget.controller.editorController = controller;
+
+                    controller.loadUrl(urlRequest: URLRequest(url: Uri.parse('file:///android_asset/flutter_assets/$filePath')), allowingReadAccessTo: Uri.parse('https://www.google.com'));
+
                     controller.addJavaScriptHandler(
                         handlerName: 'FormatSettings',
                         callback: (e) {
