@@ -24,6 +24,7 @@ class HtmlEditorWidget extends StatefulWidget {
     required this.htmlEditorOptions,
     required this.htmlToolbarOptions,
     required this.otherOptions,
+    required this.baseUrl,
   }) : super(key: key);
 
   final HtmlEditorController controller;
@@ -32,6 +33,7 @@ class HtmlEditorWidget extends StatefulWidget {
   final HtmlEditorOptions htmlEditorOptions;
   final HtmlToolbarOptions htmlToolbarOptions;
   final OtherOptions otherOptions;
+  final Uri? baseUrl;
 
   @override
   _HtmlEditorWidgetMobileState createState() => _HtmlEditorWidgetMobileState();
@@ -134,7 +136,10 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                   onWebViewCreated: (InAppWebViewController controller) async {
                     widget.controller.editorController = controller;
 
-                    controller.loadUrl(urlRequest: URLRequest(url: Uri.parse('file:///android_asset/flutter_assets/$filePath')), allowingReadAccessTo: Uri.parse('https://www.google.com'));
+                    controller.loadUrl(
+                      urlRequest: URLRequest(url: Uri.parse('file:///android_asset/flutter_assets/$filePath')),
+                      allowingReadAccessTo: widget.baseUrl,
+                    );
 
                     controller.addJavaScriptHandler(
                         handlerName: 'FormatSettings',
