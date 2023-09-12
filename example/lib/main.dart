@@ -2,8 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:html_editor_enhanced_example/test_app.dart';
 
-void main() => runApp(HtmlEditorExampleApp());
+void main() => runApp(TestApp());
 
 class HtmlEditorExampleApp extends StatelessWidget {
   // This widget is the root of your application.

@@ -61,7 +61,6 @@ class _TestScreenState extends State<TestScreen> {
                     controller.setFullScreen();
                   },
                   onFocus: () {
-
                     controller.setFocus();
                   },
                 ),
