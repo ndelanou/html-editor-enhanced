@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:math';
+import 'dart:developer';
+import 'dart:math' hide log;
 
 import 'package:flutter/foundation.dart';
 import 'dart:developer' as developer;
@@ -133,7 +134,13 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                   : Container(height: 0, width: 0),
               Expanded(
                 child: InAppWebView(
-                  initialUrlRequest: URLRequest(url: widget.baseUrl),
+                  initialUrlRequest: widget.baseUrl != null ? URLRequest(url: widget.baseUrl) : null,
+                  onLoadError: (controller, url, code, message) {
+                      log('Error loading ($code) $url: $message', name: 'html_editor_enhanced');
+                    },
+                    onLoadHttpError: (controller, url, statusCode, description) {
+                      log('Error loading ($statusCode) $url: $description', name: 'html_editor_enhanced');
+                    },
                   onWebViewCreated: (InAppWebViewController controller) async {
                     widget.controller.editorController = controller;
 
