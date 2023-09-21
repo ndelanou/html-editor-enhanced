@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:developer';
 import 'dart:math' hide log;
 
 import 'package:flutter/foundation.dart';
-import 'dart:developer' as developer;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +23,7 @@ class HtmlEditorWidget extends StatefulWidget {
     required this.htmlEditorOptions,
     required this.htmlToolbarOptions,
     required this.otherOptions,
-    required this.baseUrl,
+    this.shouldInterceptRequest,
   }) : super(key: key);
 
   final HtmlEditorController controller;
@@ -34,7 +32,7 @@ class HtmlEditorWidget extends StatefulWidget {
   final HtmlEditorOptions htmlEditorOptions;
   final HtmlToolbarOptions htmlToolbarOptions;
   final OtherOptions otherOptions;
-  final Uri? baseUrl;
+  final Future<WebResourceResponse?> Function(InAppWebViewController controller, WebResourceRequest request)? shouldInterceptRequest;
 
   @override
   _HtmlEditorWidgetMobileState createState() => _HtmlEditorWidgetMobileState();
@@ -134,13 +132,6 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                   : Container(height: 0, width: 0),
               Expanded(
                 child: InAppWebView(
-                  initialUrlRequest: widget.baseUrl != null ? URLRequest(url: widget.baseUrl) : null,
-                  onLoadError: (controller, url, code, message) {
-                    log('Error loading ($code) $url: $message', name: 'html_editor_enhanced');
-                  },
-                  onLoadHttpError: (controller, url, statusCode, description) {
-                    log('Error loading ($statusCode) $url: $description', name: 'html_editor_enhanced');
-                  },
                   onWebViewCreated: (InAppWebViewController controller) async {
                     widget.controller.editorController = controller;
 
@@ -156,17 +147,20 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                           }
                         });
                   },
-                  initialOptions: InAppWebViewGroupOptions(
-                      crossPlatform: InAppWebViewOptions(
-                        javaScriptEnabled: true,
-                        transparentBackground: true,
-                        useShouldOverrideUrlLoading: true,
-                      ),
-                      android: AndroidInAppWebViewOptions(
-                        useHybridComposition: widget
-                            .htmlEditorOptions.androidUseHybridComposition,
-                        loadWithOverviewMode: true,
-                      )),
+                  shouldInterceptRequest: widget.shouldInterceptRequest,
+                   
+                  initialSettings: InAppWebViewSettings(
+                    javaScriptEnabled: true,
+                    transparentBackground: true,
+                    useShouldOverrideUrlLoading: true,
+
+                    // Interceptions
+                    useShouldInterceptRequest: widget.shouldInterceptRequest != null,
+
+                    // Android
+                    loadWithOverviewMode: true,
+                    useHybridComposition: widget.htmlEditorOptions.androidUseHybridComposition,
+                  ),
                   initialUserScripts:
                       widget.htmlEditorOptions.mobileInitialScripts
                           as UnmodifiableListView<UserScript>?,
@@ -188,9 +182,6 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                           NavigationActionPolicy.ALLOW;
                     }
                     return NavigationActionPolicy.ALLOW;
-                  },
-                  onConsoleMessage: (controller, message) {
-                    developer.log(message.message, name: 'html_editor_enhanced');
                   },
                   onWindowFocus: (controller) async {
                     final scrollableState = Scrollable.maybeOf(context);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 
 /// Fallback HtmlEditor class (should never be called)
@@ -11,7 +12,7 @@ class HtmlEditor extends StatelessWidget {
     this.htmlToolbarOptions = const HtmlToolbarOptions(),
     this.otherOptions = const OtherOptions(),
     this.plugins = const [],
-    this.baseUrl,
+    this.shouldInterceptRequest,
   }) : super(key: key);
 
   /// The controller that is passed to the widget, which allows multiple [HtmlEditor]
@@ -34,7 +35,9 @@ class HtmlEditor extends StatelessWidget {
   /// Sets the list of Summernote plugins enabled in the editor.
   final List<Plugins> plugins;
 
-  final Uri? baseUrl;
+  /// Resolve resource requests on behalf of the WebView
+  /// The returned WebResourceResponse
+  final Future<WebResourceResponse?> Function(InAppWebViewController controller, WebResourceRequest request)? shouldInterceptRequest;
 
   @override
   Widget build(BuildContext context) {
