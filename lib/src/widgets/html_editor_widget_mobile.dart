@@ -136,11 +136,11 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                 child: InAppWebView(
                   initialUrlRequest: widget.baseUrl != null ? URLRequest(url: widget.baseUrl) : null,
                   onLoadError: (controller, url, code, message) {
-                      log('Error loading ($code) $url: $message', name: 'html_editor_enhanced');
-                    },
-                    onLoadHttpError: (controller, url, statusCode, description) {
-                      log('Error loading ($statusCode) $url: $description', name: 'html_editor_enhanced');
-                    },
+                    log('Error loading ($code) $url: $message', name: 'html_editor_enhanced');
+                  },
+                  onLoadHttpError: (controller, url, statusCode, description) {
+                    log('Error loading ($statusCode) $url: $description', name: 'html_editor_enhanced');
+                  },
                   onWebViewCreated: (InAppWebViewController controller) async {
                     widget.controller.editorController = controller;
 
@@ -190,8 +190,7 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                     return NavigationActionPolicy.ALLOW;
                   },
                   onConsoleMessage: (controller, message) {
-                    developer.log(message.message,
-                        name: 'html_editor_enhanced');
+                    developer.log(message.message, name: 'html_editor_enhanced');
                   },
                   onWindowFocus: (controller) async {
                     final scrollableState = Scrollable.maybeOf(context);
