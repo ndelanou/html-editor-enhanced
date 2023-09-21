@@ -147,19 +147,19 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                           }
                         });
                   },
-                  shouldInterceptRequest: widget.shouldInterceptRequest,
+                  
+                  androidShouldInterceptRequest: widget.shouldInterceptRequest,
                    
-                  initialSettings: InAppWebViewSettings(
-                    javaScriptEnabled: true,
-                    transparentBackground: true,
-                    useShouldOverrideUrlLoading: true,
-
-                    // Interceptions
+                  initialOptions: InAppWebViewGroupOptions(
+                    crossPlatform: InAppWebViewOptions(
+                      javaScriptEnabled: true,
+                      transparentBackground: true,
+                      useShouldOverrideUrlLoading: true,
+                    ),
+                    android: AndroidInAppWebViewOptions(
                     useShouldInterceptRequest: widget.shouldInterceptRequest != null,
-
-                    // Android
-                    loadWithOverviewMode: true,
                     useHybridComposition: widget.htmlEditorOptions.androidUseHybridComposition,
+                    ),
                   ),
                   initialUserScripts:
                       widget.htmlEditorOptions.mobileInitialScripts
