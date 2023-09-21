@@ -97,12 +97,11 @@ packages:
   flutter_inappwebview:
     dependency: transitive
     description:
-      path: "."
-      ref: "44a9d9e8b3a553752c5847cfe30e75eefdbb4cd9"
-      resolved-ref: "44a9d9e8b3a553752c5847cfe30e75eefdbb4cd9"
-      url: "https://github.com/ndelanou/flutter_inappwebview.git"
-    source: git
-    version: "6.0.0-beta.25"
+      name: flutter_inappwebview
+      sha256: fad1f2740ff4b5b7da378a639f54beeb9d787b6339c89a9de00494d92372c0bb
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0-beta.24+1"
   flutter_inappwebview_internal_annotations:
     dependency: transitive
     description:
