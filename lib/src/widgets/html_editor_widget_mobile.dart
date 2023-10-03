@@ -153,7 +153,6 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                   initialOptions: InAppWebViewGroupOptions(
                     crossPlatform: InAppWebViewOptions(
                       javaScriptEnabled: true,
-                      transparentBackground: true,
                       useShouldOverrideUrlLoading: true,
                     ),
                     android: AndroidInAppWebViewOptions(
