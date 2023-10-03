@@ -457,15 +457,16 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                       await controller.evaluateJavascript(
                           source:
                               "document.getElementsByClassName('note-editable')[0].setAttribute('inputmode', '${describeEnum(widget.htmlEditorOptions.inputType)}');");
-                      if ((Theme.of(context).brightness == Brightness.dark ||
-                              widget.htmlEditorOptions.darkMode == true) &&
-                          widget.htmlEditorOptions.darkMode != false) {
-                        //todo fix for iOS (https://github.com/pichillilorenzo/flutter_inappwebview/issues/695)
-                        var darkCSS =
-                            '<link href=\"${(widget.htmlEditorOptions.filePath != null ? "file:///android_asset/flutter_assets/packages/html_editor_enhanced/assets/" : "") + "summernote-lite-dark.css"}\" rel=\"stylesheet\">';
-                        await controller.evaluateJavascript(
-                            source: "\$('head').append('$darkCSS');");
-                      }
+                      // MARK: Dark Mode disabled
+                      // if ((Theme.of(context).brightness == Brightness.dark ||
+                      //         widget.htmlEditorOptions.darkMode == true) &&
+                      //     widget.htmlEditorOptions.darkMode != false) {
+                      //   //todo fix for iOS (https://github.com/pichillilorenzo/flutter_inappwebview/issues/695)
+                      //   var darkCSS =
+                      //       '<link href=\"${(widget.htmlEditorOptions.filePath != null ? "file:///android_asset/flutter_assets/packages/html_editor_enhanced/assets/" : "") + "summernote-lite-dark.css"}\" rel=\"stylesheet\">';
+                      //   await controller.evaluateJavascript(
+                      //       source: "\$('head').append('$darkCSS');");
+                      // }
                       //set the text once the editor is loaded
                       if (widget.htmlEditorOptions.initialText != null) {
                         widget.controller

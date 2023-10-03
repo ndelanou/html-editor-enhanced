@@ -183,12 +183,13 @@ class _HtmlEditorWidgetWebState extends State<HtmlEditorWidget> {
     }
     summernoteCallbacks = summernoteCallbacks + '}';
     var darkCSS = '';
-    if ((Theme.of(widget.initBC).brightness == Brightness.dark ||
-            widget.htmlEditorOptions.darkMode == true) &&
-        widget.htmlEditorOptions.darkMode != false) {
-      darkCSS =
-          '<link href="assets/packages/html_editor_enhanced/assets/summernote-lite-dark.css" rel="stylesheet">';
-    }
+    // MARK: Dark Mode disabled
+    // if ((Theme.of(widget.initBC).brightness == Brightness.dark ||
+    //         widget.htmlEditorOptions.darkMode == true) &&
+    //     widget.htmlEditorOptions.darkMode != false) {
+    //   darkCSS =
+    //       '<link href="assets/packages/html_editor_enhanced/assets/summernote-lite-dark.css" rel="stylesheet">';
+    // }
     var jsCallbacks = '';
     if (widget.callbacks != null) {
       jsCallbacks = getJsCallbacks(widget.callbacks!);
