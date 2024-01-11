@@ -23,7 +23,7 @@ class TestScreen extends StatefulWidget {
 class _TestScreenState extends State<TestScreen> {
   final tfFocusNode = FocusNode();
   final tfController = TextEditingController();
-  
+
   final controller = HtmlEditorController();
   final focusNode = FocusNode();
 

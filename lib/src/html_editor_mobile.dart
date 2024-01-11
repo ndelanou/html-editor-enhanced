@@ -1,6 +1,5 @@
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:html_editor_enhanced/html_editor.dart'
-    hide HtmlEditorController;
+import 'package:html_editor_enhanced/html_editor.dart' hide HtmlEditorController;
 import 'package:html_editor_enhanced/src/html_editor_controller_mobile.dart';
 import 'package:html_editor_enhanced/src/widgets/html_editor_widget_mobile.dart';
 import 'package:flutter/foundation.dart';
@@ -57,8 +56,7 @@ class HtmlEditor extends StatelessWidget {
         shouldInterceptRequest: shouldInterceptRequest,
       );
     } else {
-      return Text(
-          'Flutter Web environment detected, please make sure you are importing package:html_editor_enhanced/html_editor.dart');
+      return Text('Flutter Web environment detected, please make sure you are importing package:html_editor_enhanced/html_editor.dart');
     }
   }
 }

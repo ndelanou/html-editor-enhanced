@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
-import 'package:html_editor_enhanced/src/html_editor_controller_unsupported.dart'
-    as unsupported;
+import 'package:html_editor_enhanced/src/html_editor_controller_unsupported.dart' as unsupported;
 
 /// Controller for mobile
 class HtmlEditorController extends unsupported.HtmlEditorController {
@@ -52,27 +51,19 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   /// is complete
   @override
   // ignore: unnecessary_getters_setters
-  set editorController(dynamic controller) =>
-      _editorController = controller as InAppWebViewController?;
+  set editorController(dynamic controller) => _editorController = controller as InAppWebViewController?;
 
   /// A function to quickly call a document.execCommand function in a readable format
   @override
   void execCommand(String command, {String? argument}) {
-    _evaluateJavascript(
-        source:
-            "document.execCommand('$command', false${argument == null ? "" : ", '$argument'"});");
+    _evaluateJavascript(source: "document.execCommand('$command', false${argument == null ? "" : ", '$argument'"});");
   }
 
   /// Gets the text from the editor and returns it as a [String].
   @override
   Future<String> getText() async {
     var text = (await _summernote('code')) as String?;
-    if (processOutputHtml &&
-        (text == null ||
-            text.isEmpty ||
-            text == '<p></p>' ||
-            text == '<p><br></p>' ||
-            text == '<p><br/></p>')) text = '';
+    if (processOutputHtml && (text == null || text.isEmpty || text == '<p></p>' || text == '<p><br></p>' || text == '<p><br/></p>')) text = '';
     return text ?? '';
   }
 
@@ -147,17 +138,12 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
 
   /// Insert a network image at the position of the cursor in the editor
   @override
-  void insertNetworkImage(String url, {String filename = ''}) =>
-      _summernote('insertImage', params: [url, filename]);
+  void insertNetworkImage(String url, {String filename = ''}) => _summernote('insertImage', params: [url, filename]);
 
   /// Insert a link at the position of the cursor in the editor
   @override
   void insertLink(String text, String url, bool isNewWindow) {
-    _summernote('createLink', paramsMap: {
-      'text': text,
-      'url': url,
-      'isNewWindow': isNewWindow.toString()
-    });
+    _summernote('createLink', paramsMap: {'text': text, 'url': url, 'isNewWindow': isNewWindow.toString()});
   }
 
   /// Clears the focus from the webview by hiding the keyboard, calling the
@@ -171,8 +157,7 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   /// Reloads the IFrameElement, throws an exception on mobile
   @override
   void reloadWeb() {
-    throw Exception(
-        'Non-Flutter Web environment detected, please make sure you are importing package:html_editor_enhanced/html_editor.dart and check kIsWeb before calling this function');
+    throw Exception('Non-Flutter Web environment detected, please make sure you are importing package:html_editor_enhanced/html_editor.dart and check kIsWeb before calling this function');
   }
 
   /// Resets the height of the editor back to the original if it was changed to
@@ -180,18 +165,14 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   /// when [adjustHeightForKeyboard] is enabled.
   @override
   void resetHeight() {
-    _evaluateJavascript(
-        source:
-            "window.flutter_inappwebview.callHandler('setHeight', 'reset');");
+    _evaluateJavascript(source: "window.flutter_inappwebview.callHandler('setHeight', 'reset');");
   }
 
   /// Recalculates the height of the editor to remove any vertical scrolling.
   /// This method will not do anything if [autoAdjustHeight] is turned off.
   @override
   void recalculateHeight() {
-    _evaluateJavascript(
-        source:
-            "var height = document.body.scrollHeight; window.flutter_inappwebview.callHandler('setHeight', height);");
+    _evaluateJavascript(source: "var height = document.body.scrollHeight; window.flutter_inappwebview.callHandler('setHeight', height);");
   }
 
   /// Add a notification to the bottom of the editor. This is styled similar to
@@ -201,7 +182,7 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   void addNotification(String html, NotificationType notificationType) async {
     await _evaluateJavascript(source: """
         \$('.note-status-output').html(
-          '<div class="alert alert-${describeEnum(notificationType)}">$html</div>'
+          '<div class="alert alert-${notificationType.name}">$html</div>'
         );
         """);
     recalculateHeight();
@@ -217,11 +198,7 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   /// Helper function to process input html
   String _processHtml({required html}) {
     if (processInputHtml) {
-      html = html
-          .replaceAll("'", r"\'")
-          .replaceAll('"', r'\"')
-          .replaceAll('\r', '')
-          .replaceAll('\r\n', '');
+      html = html.replaceAll("'", r"\'").replaceAll('"', r'\"').replaceAll('\r', '').replaceAll('\r\n', '');
     }
     if (processNewLineAsBr) {
       html = html.replaceAll('\n', '<br/>').replaceAll('\n\n', '<br/>');
@@ -235,28 +212,22 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   Future<dynamic> _evaluateJavascript({required source}) async {
     if (!kIsWeb) {
       if (editorController == null || await editorController!.isLoading()) {
-        throw Exception(
-            'HTML editor is still loading, please wait before evaluating this JS: $source!');
+        throw Exception('HTML editor is still loading, please wait before evaluating this JS: $source!');
       }
       return editorController!.evaluateJavascript(source: source);
     } else {
-      throw Exception(
-          'Flutter Web environment detected, please make sure you are importing package:html_editor_enhanced/html_editor.dart');
+      throw Exception('Flutter Web environment detected, please make sure you are importing package:html_editor_enhanced/html_editor.dart');
     }
   }
 
-  Future<dynamic> _summernote(String command,
-      {List<String>? params, Map<String, String>? paramsMap}) {
-    assert(params == null || paramsMap == null,
-        'Cannot have both `params` and `paramsMap`');
+  Future<dynamic> _summernote(String command, {List<String>? params, Map<String, String>? paramsMap}) {
+    assert(params == null || paramsMap == null, 'Cannot have both `params` and `paramsMap`');
 
     String? paramsString;
     if (params != null) {
       paramsString = params.map((p) => "'$p'").join(', ');
     } else if (paramsMap != null) {
-      paramsString = paramsMap.entries
-          .map((entry) => "'${entry.key}': '${entry.value}'")
-          .join(', ');
+      paramsString = paramsMap.entries.map((entry) => "'${entry.key}': '${entry.value}'").join(', ');
     }
 
     String jsCommand;
