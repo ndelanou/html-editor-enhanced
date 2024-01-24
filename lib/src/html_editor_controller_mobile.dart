@@ -143,7 +143,7 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
   /// Insert a link at the position of the cursor in the editor
   @override
   void insertLink(String text, String url, bool isNewWindow) {
-    _summernote('createLink', paramsMap: {'text': text, 'url': url, 'isNewWindow': isNewWindow.toString()});
+    _summernote('createLink', paramsMap: {'text': text, 'url': url, 'isNewWindow': isNewWindow});
   }
 
   /// Clears the focus from the webview by hiding the keyboard, calling the
@@ -220,14 +220,18 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
     }
   }
 
-  Future<dynamic> _summernote(String command, {List<String>? params, Map<String, String>? paramsMap}) {
+  Future<dynamic> _summernote(String command, {List<String>? params, Map<String, dynamic>? paramsMap}) {
     assert(params == null || paramsMap == null, 'Cannot have both `params` and `paramsMap`');
 
     String? paramsString;
     if (params != null) {
       paramsString = params.map((p) => "'$p'").join(', ');
     } else if (paramsMap != null) {
-      paramsString = paramsMap.entries.map((entry) => "'${entry.key}': '${entry.value}'").join(', ');
+      final paramFields = paramsMap.entries.map((entry) {
+        final valueString = entry.value is String ? "'${entry.value}'" : entry.value.toString();
+        return '${entry.key}: $valueString';
+      }).join(', ');
+      paramsString = '{ $paramFields }';
     }
 
     String jsCommand;
